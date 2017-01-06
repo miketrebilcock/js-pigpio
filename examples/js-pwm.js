@@ -1,4 +1,4 @@
-var PiFastGpio = require('../index.js');
+var Pigpio = require('../index.js');
 
 var LED_1_GPIO = 24;
 var LED_2_GPIO = 25;
@@ -9,7 +9,7 @@ var run = true;
 var dcStates = [0, 16, 64, 128, 255]; // dutycycle, 0 - 255
 var dcIndex = 0;
 
-var gpio = new PiFastGpio();
+var gpio = new Pigpio();
 
 gpio.connect(HOST, PORT, function(err) {
     if (err) throw err;
