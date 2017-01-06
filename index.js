@@ -1,4 +1,4 @@
-require('./definitions.js');
+const def = require('./definitions.js');
 const net = require('net');
 const Put = require('put');
 
@@ -65,7 +65,7 @@ Pigpio.prototype.close = function() {
  */
 Pigpio.prototype.setServoPulsewidth = function(userGpio, pulsewidth) {
     var cmd = Put()
-        .word32le(PI_CMD_SERVO) // _PI_CMD_SERVO
+        .word32le(def.PI_CMD_SERVO) // _PI_CMD_SERVO
         .word32le(userGpio)
         .word32le(pulsewidth)
         .word32le(0); // Not used
@@ -89,7 +89,7 @@ Pigpio.prototype.setServoPulsewidth = function(userGpio, pulsewidth) {
  */
 Pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
     var cmd = Put()
-        .word32le(PI_CMD_PWM) // _PI_CMD_PWM
+        .word32le(def.PI_CMD_PWM) // _PI_CMD_PWM
         .word32le(userGpio)
         .word32le(dutycycle)
         .word32le(0);

@@ -4,13 +4,20 @@
   "description": "pure js implementation of pigpio",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "echo No Tests yet!"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "node-constants": "0.0.2",
     "put": "0.0.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/i-am-digital/js-pigpiod.git"
+  },
+  "bugs": {
+    "url": "https://github.com/i-am-digital/js-pigpiod/issues"
   },
   "devDependencies": {},
   "keywords": [
