@@ -1,4 +1,4 @@
-require('definitions.js');
+require('./definitions.js');
 const net = require('net');
 const Put = require('put');
 
