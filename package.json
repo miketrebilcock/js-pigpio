@@ -1,0 +1,27 @@
+{
+  "name": "js-pigpiod",
+  "version": "1.0.0",
+  "description": "pure js implementation of pigpio",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "put": "0.0.6"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "pigpio",
+    "servo",
+    "pwm",
+    "hardware pwm",
+    "raspberry",
+    "pi",
+    "raspberry pi",
+    "raspberrypi",
+    "dma",
+    "gpio"
+  ]
+}
