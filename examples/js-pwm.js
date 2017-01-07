@@ -2,7 +2,7 @@ var Pigpio = require('../index.js');
 
 var LED_1_GPIO = 24;
 var LED_2_GPIO = 25;
-var HOST = '127.0.0.1';
+var HOST = '192.168.1.4';
 var PORT = 8888;
 
 var run = true;
