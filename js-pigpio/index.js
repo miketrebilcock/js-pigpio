@@ -88,7 +88,7 @@ pigpio.prototype.close = function() {
  */
 pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
     assert(userGpio>=0 && userGpio <=31, "userGpio must be in the range 0-31");
-    assert(pulseWidth>=0 && pulseWidth <=2500, "pulsWidth must be in the range 0-255");
+    assert(pulseWidth>=0 && pulseWidth <=2500, "pulsWidth must be in the range 0-2500");
     this._pi_gpio_command(def.PI_CMD_SERVO, userGpio, pulseWidth);
 };
 
