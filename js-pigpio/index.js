@@ -2,10 +2,13 @@ const def = require('./definitions.js');
 const net = require('net');
 const Put = require('put');
 
+const _LOCKS = [];
+
 /** @constructor */
-function Pigpio() {}
+function pigpio() {}
 
 /**
+ *
  * Connects to the pigpio daemon.
  *
  * This method has to be called before it's possible to do anything with
@@ -14,11 +17,17 @@ function Pigpio() {}
  * The callback will be called when the connection has been established or
  * if an error occurs.
  *
- * @param {string} host - The host to connect to
- * @param {number} port - The port on the host to connect to
- * @param {function} cb - Callback function
+ * @param {string} [host] - The host to connect to
+ * @param {number} [port] - The port on the host to connect to
+ * @param {function} [cb] - Callback function
  */
-Pigpio.prototype.connect = function(host, port, cb) {
+pigpio.prototype.pi = function(host, port, cb) {
+    if (host === undefined) {
+        host = process.env.PIGPIO_ADDR || 'localhost';
+    }
+    if (port === undefined) {
+        port =  process.env.PIGPIO_PORT || '8888';
+    }
     this.client = net.connect({host: host, port: port});
 
     this.client.on('connect', function() {
@@ -36,7 +45,7 @@ Pigpio.prototype.connect = function(host, port, cb) {
 /**
  * Half-closes the connection. We might still get some data from the server.
  */
-Pigpio.prototype.close = function() {
+pigpio.prototype.close = function() {
     this.client.end();
 };
 
@@ -63,7 +72,7 @@ Pigpio.prototype.close = function() {
  *              0 (off),
  *              500 (most anti-clockwise) - 2500 (most clockwise).
  */
-Pigpio.prototype.setServoPulsewidth = function(userGpio, pulsewidth) {
+pigpio.prototype.setServoPulsewidth = function(userGpio, pulsewidth) {
     var cmd = Put()
         .word32le(def.PI_CMD_SERVO) // _PI_CMD_SERVO
         .word32le(userGpio)
@@ -87,9 +96,9 @@ Pigpio.prototype.setServoPulsewidth = function(userGpio, pulsewidth) {
  *              0 (off),
  *              255 (full on)
  */
-Pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
+pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
     var cmd = Put()
-        .word32le(def.PI_CMD_PWM) // _PI_CMD_PWM
+        .word32le(def.PI_CMD_PWM)
         .word32le(userGpio)
         .word32le(dutycycle)
         .word32le(0);
@@ -97,4 +106,27 @@ Pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
     this.client.write(cmd.buffer());
 };
 
-module.exports = Pigpio;
+pigpio.prototype.getHardwareRevision = function (cb) {
+    var cmd = Put()
+        .word32le(def.PI_CMD_HWVER)
+        .word32le(0)
+        .word32le(0)
+        .word32le(1);
+
+    this.client.write(cmd.buffer());
+
+};
+
+function pi_gpio_command(command, p1, p2, next) {
+    var cmd = Put()
+        .word32le(command)
+        .word32le(p1)
+        .word32le(p2)
+        .word32le(1);
+
+    if(!this.client.write(cmd.buffer())) {
+        next(new Error("Error Sending Command to Pi: "+command));
+    }
+}
+
+module.exports = pigpio;

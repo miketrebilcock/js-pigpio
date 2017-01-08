@@ -1,13 +1,13 @@
 {
-  "name": "js-pigpiod",
-  "version": "1.0.0",
+  "name": "js-pigpio",
+  "version": "1.0.1",
   "description": "pure js implementation of pigpio",
-  "main": "index.js",
+  "main": "./js-pigpio/index.js",
   "scripts": {
     "test": "istanbul cover node_modules/mocha/bin/_mocha && codecov",
     "changelog": "standard-changelog -i CHANGELOG.md -w",
-    "lint": "eslint ./pigpiod/**/*.js ./test/**/*.js",
-    "docs": "jsdoc ./pigpiod -R ./README.md -d docs -c jsdoc.json",
+    "lint": "eslint ./js-pigpio/**/*.js ./test/**/*.js",
+    "docs": "jsdoc ./js-pigpio -R ./README.md -d docs -c jsdoc.json",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "author": "",
@@ -18,10 +18,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/i-am-digital/js-pigpiod.git"
+    "url": "https://github.com/i-am-digital/js-pigpio.git"
   },
   "bugs": {
-    "url": "https://github.com/i-am-digital/js-pigpiod/issues"
+    "url": "https://github.com/i-am-digital/js-pigpio/issues"
   },
   "devDependencies": {
     "chai": "^3.5.0",

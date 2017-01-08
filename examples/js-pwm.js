@@ -1,4 +1,4 @@
-var Pigpio = require('../index.js');
+var Pigpio = require('./index.js');
 
 var LED_1_GPIO = 24;
 var LED_2_GPIO = 25;
@@ -9,16 +9,16 @@ var run = true;
 var dcStates = [0, 16, 64, 128, 255]; // dutycycle, 0 - 255
 var dcIndex = 0;
 
-var gpio = new Pigpio();
+var PiGPIO = new Pigpio();
 
-gpio.connect(HOST, PORT, function(err) {
+PiGPIO.pi(HOST, PORT, function(err) {
     if (err) throw err;
 
     setTimeout(function() { run = false; }, 20000);
 
     var pwmUpdateInterval = setInterval(function() {
-        gpio.setPwmDutycycle(LED_1_GPIO, dcStates[dcIndex]);
-        gpio.setPwmDutycycle(LED_2_GPIO, dcStates[4 - dcIndex]);
+        PiGPIO.setPwmDutycycle(LED_1_GPIO, dcStates[dcIndex]);
+        PiGPIO.setPwmDutycycle(LED_2_GPIO, dcStates[4 - dcIndex]);
 
         dcIndex = dcIndex + 1;
         if (dcIndex > 4) {
@@ -26,9 +26,9 @@ gpio.connect(HOST, PORT, function(err) {
         }
 
         if (!run) {
-            gpio.setPwmDutycycle(LED_1_GPIO, 0); // pwm off
-            gpio.setPwmDutycycle(LED_2_GPIO, 0); // pwm off
-            gpio.close();
+            PiGPIO.setPwmDutycycle(LED_1_GPIO, 0); // pwm off
+            PiGPIO.setPwmDutycycle(LED_2_GPIO, 0); // pwm off
+            PiGPIO.close();
             clearInterval(pwmUpdateInterval);
         }
     }, 1000);
