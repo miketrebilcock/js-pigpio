@@ -1,6 +1,6 @@
 {
   "name": "js-pigpio",
-  "version": "1.0.2",
+  "version": "0.0.0-development",
   "description": "pure js implementation of pigpio",
   "main": "./js-pigpio/index.js",
   "scripts": {
@@ -50,5 +50,10 @@
     "raspberrypi",
     "dma",
     "gpio"
-  ]
+  ],
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }

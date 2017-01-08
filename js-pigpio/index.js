@@ -134,7 +134,7 @@ pigpio.prototype.getHardwareRevision = function(cb) {
 };
 
 pigpio.prototype._pi_gpio_command = function(command, parameter1, parameter2, next, wait_for_response) {
-    var cmd = Put()
+    const cmd = Put()
         .word32le(command)
         .word32le(parameter1)
         .word32le(parameter2)
