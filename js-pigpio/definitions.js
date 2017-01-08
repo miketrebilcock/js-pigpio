@@ -136,7 +136,7 @@ define({
     PI_CMD_BSPIC: 111,
 
 
-        PI_CMD_BSPIO :  112,
+    PI_CMD_BSPIO :  112,
     PI_CMD_BSPIX :  113,
 
     PI_CMD_BSCX :  114,

@@ -3,6 +3,7 @@
     "rules": {
         "no-var" : "off",
         "import/no-commonjs" : "off",
+        "import/no-nodejs-modules" : "off",
         "jsdoc/check-param-names": 1,
         "jsdoc/check-tag-names": 1,
         "jsdoc/check-types": 1,

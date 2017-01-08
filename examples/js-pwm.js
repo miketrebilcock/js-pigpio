@@ -1,4 +1,4 @@
-var Pigpio = require('./index.js');
+var Pigpio = require('../js-pigpio/index.js');
 
 var LED_1_GPIO = 24;
 var LED_2_GPIO = 25;
@@ -11,16 +11,16 @@ var dcIndex = 0;
 
 var PiGPIO = new Pigpio();
 
-PiGPIO.pi(HOST, PORT, function(err) {
+PiGPIO.pi(HOST, PORT, (err) => {
     if (err) throw err;
 
-    setTimeout(function() { run = false; }, 20000);
+    setTimeout(() => { run = false; }, 20000);
 
-    var pwmUpdateInterval = setInterval(function() {
+    var pwmUpdateInterval = setInterval(() => {
         PiGPIO.setPwmDutycycle(LED_1_GPIO, dcStates[dcIndex]);
         PiGPIO.setPwmDutycycle(LED_2_GPIO, dcStates[4 - dcIndex]);
 
-        dcIndex = dcIndex + 1;
+        dcIndex += 1;
         if (dcIndex > 4) {
             dcIndex = 0;
         }
