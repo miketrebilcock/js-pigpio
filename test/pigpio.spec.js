@@ -56,6 +56,155 @@ describe('js-pigpio', () => {
         });
     });
     context('Beginner', () => {
+        it('set_mode as INPUT', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_mode(1, pigpio.INPUT);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='0', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='0', "Wrong Command Send");
+                    done();
+                }, 500, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_mode as OUTPUT', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_mode(1, pigpio.OUTPUT);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='0', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='1', "Wrong Command Send");
+                    done();
+                }, 500, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_mode as ALT0', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_mode(1, pigpio.ALT0);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='0', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='4', "Wrong Command Send");
+                    done();
+                }, 500, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_mode as ALT1', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_mode(1, pigpio.ALT1);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='0', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='5', "Wrong Command Send");
+                    done();
+                }, 500, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_mode as ALT2', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_mode(1, pigpio.ALT2);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='0', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='6', "Wrong Command Send");
+                    done();
+                }, 500, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_mode as ALT3', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_mode(1, pigpio.ALT3);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='0', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='7', "Wrong Command Send");
+                    done();
+                }, 500, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_mode as ALT4', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_mode(1, pigpio.ALT4);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='0', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='3', "Wrong Command Send");
+                    done();
+                }, 500, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_mode as ALT5', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_mode(1, pigpio.ALT5);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='0', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='2', "Wrong Command Send");
+                    done();
+                }, 500, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_mode validates inputs', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.set_mode(-1, pigpio.OUTPUT);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_mode(54, pigpio.OUTPUT);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_mode(1, "TEST");
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_mode();
+                }).to.throw(Error);
+                pigpio.close();
+
+            });
+        });
+
         it('setServoPulsewidth', (done) => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', 5000, () => {

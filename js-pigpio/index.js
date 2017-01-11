@@ -3,11 +3,16 @@ const net = require('net');
 const assert = require('assert');
 const Put = require('put');
 const reverse_string = require('./utils.js').reverse_string;
-const define = require("node-constants")(exports);
 
 const _LOCKS = [];
 
-define({
+/** @class */
+function pigpio() {
+    "use strict";
+
+}
+
+pigpio.prototype = {
 // GPIO levels
     OFF: 0,
     LOW: 0,
@@ -41,13 +46,8 @@ define({
     PUD_OFF: 0,
     PUD_DOWN: 1,
     PUD_UP: 2
-});
+};
 
-/** @class */
-function pigpio() {
-    "use strict";
-
-}
 
 /**
  *
@@ -185,7 +185,7 @@ pigpio.prototype.getHardwareRevision = function(cb) {
 pigpio.prototype.set_mode = function (gpio, mode) {
     "use strict";
     assert(gpio>=0 && gpio <=53, "userGpio must be in the range 0-31");
-    assert([pigpio.INPUT, pigpio.OUTPUT, pigpio.ALT0, pigpio.ALT1, pigpio.ALT2, pigpio.ALT3, pigpio.ALT4, pigpio.ALT5].includes(mode), "Mode must be INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4, ALT5");
+    assert([this.INPUT, this.OUTPUT, this.ALT0, this.ALT1, this.ALT2, this.ALT3, this.ALT4, this.ALT5].includes(mode), "Mode must be INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4, ALT5");
     this._pi_gpio_command(def.PI_CMD_MODES, gpio, mode);
 
 };
