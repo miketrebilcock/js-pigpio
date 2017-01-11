@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="pigpio.html">pigpio</a><ul class='methods'><li data-type='method'><a href="pigpio.html#close">close</a></li><li data-type='method'><a href="pigpio.html#getHardwareRevision">getHardwareRevision</a></li><li data-type='method'><a href="pigpio.html#pi">pi</a></li><li data-type='method'><a href="pigpio.html#setPwmDutycycle">setPwmDutycycle</a></li><li data-type='method'><a href="pigpio.html#setServoPulsewidth">setServoPulsewidth</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#define">define</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="pigpio.html">pigpio</a><ul class='methods'><li data-type='method'><a href="pigpio.html#close">close</a></li><li data-type='method'><a href="pigpio.html#getHardwareRevision">getHardwareRevision</a></li><li data-type='method'><a href="pigpio.html#pi">pi</a></li><li data-type='method'><a href="pigpio.html#set_glitch_filter">set_glitch_filter</a></li><li data-type='method'><a href="pigpio.html#set_mode">set_mode</a></li><li data-type='method'><a href="pigpio.html#set_pull_up_down">set_pull_up_down</a></li><li data-type='method'><a href="pigpio.html#setPwmDutycycle">setPwmDutycycle</a></li><li data-type='method'><a href="pigpio.html#setServoPulsewidth">setServoPulsewidth</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#define">define</a></li></ul>
 </nav>
 
 <div id="main">
@@ -47,8 +47,46 @@ const _LOCKS = [];
 
 /** @class */
 function pigpio() {
-    /* no-empty-function */
+    "use strict";
+
 }
+
+pigpio.prototype = {
+// GPIO levels
+    OFF: 0,
+    LOW: 0,
+    CLEAR: 0,
+
+    ON: 1,
+    HIGH: 1,
+    SET: 1,
+
+    TIMEOUT: 2,
+
+// GPIO edges
+
+    RISING_EDGE: 0,
+    FALLING_EDGE: 1,
+    EITHER_EDGE: 2,
+
+// GPIO modes
+
+    INPUT: 0,
+    OUTPUT: 1,
+    ALT0: 4,
+    ALT1: 5,
+    ALT2: 6,
+    ALT3: 7,
+    ALT4: 3,
+    ALT5: 2,
+
+// GPIO Pull Up Down
+
+    PUD_OFF: 0,
+    PUD_DOWN: 1,
+    PUD_UP: 2
+};
+
 
 /**
  *
@@ -65,6 +103,7 @@ function pigpio() {
  * @param {Object} [cb] - Callback function.
  */
 pigpio.prototype.pi = function(host, port, cb) {
+    "use strict";
     const that = this;
     if (host === undefined) {
         host = process.env.PIGPIO_ADDR || 'localhost';
@@ -97,6 +136,7 @@ pigpio.prototype.pi = function(host, port, cb) {
  * Half-closes the connection. We might still get some data from the server.
  */
 pigpio.prototype.close = function() {
+    "use strict";
     this.client.end();
 };
 
@@ -126,8 +166,9 @@ pigpio.prototype.close = function() {
  *              500 (most anti-clockwise) - 2500 (most clockwise).
  */
 pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
-    assert(userGpio>=0 &amp;&amp; userGpio &lt;=31, "userGpio must be in the range 0-31");
-    assert(pulseWidth>=0 &amp;&amp; pulseWidth &lt;=2500, "pulsWidth must be in the range 0-255");
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    assert(pulseWidth>=0 &amp;&amp; pulseWidth &lt;=2500, "pulsWidth must be in the range 0-2500");
     this._pi_gpio_command(def.PI_CMD_SERVO, userGpio, pulseWidth);
 };
 
@@ -147,7 +188,8 @@ pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
  *              255 (full on).
  */
 pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
-    assert(userGpio>=0 &amp;&amp; userGpio &lt;=31, "userGpio must be in the range 0-31");
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
     assert(dutycycle>=0 &amp;&amp; dutycycle &lt;=255, "dutycycle must be in the range 0-255");
     this._pi_gpio_command(def.PI_CMD_PWM, userGpio, dutycycle);
 };
@@ -168,11 +210,59 @@ pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
  * @param {callback} cb - Callback that will receive the result in form of function (err, data).
  */
 pigpio.prototype.getHardwareRevision = function(cb) {
+    "use strict";
     this._pi_gpio_command(def.PI_CMD_HWVER, 0, 0, cb, true);
 
 };
 
+/**
+ * Sets the GPIO mode.
+ *
+ * @param {number} gpio - Port 0-53.
+ * @param {string} mode - Must be either INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4 or ALT5.
+ */
+pigpio.prototype.set_mode = function (gpio, mode) {
+    "use strict";
+    assert_gpio_pin_in_range(gpio,0,53);
+    assert([this.INPUT, this.OUTPUT, this.ALT0, this.ALT1, this.ALT2, this.ALT3, this.ALT4, this.ALT5].includes(mode), "Mode must be INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4, ALT5");
+    this._pi_gpio_command(def.PI_CMD_MODES, gpio, mode);
+
+};
+
+/**
+ * Sets or clears the internal GPIO pull-up/down resistor.
+ *
+ * @param {number} gpio - Port 0-53.
+ * @param {string} pud - Must be either PUD_UP, PUD_DOWN, PUD_OFF.
+ */
+pigpio.prototype.set_pull_up_down = function (gpio, pud) {
+    "use strict";
+    assert_gpio_pin_in_range(gpio,0,53);
+    assert([this.PUD_DOWN, this.PUD_OFF, this.PUD_UP].includes(pud), "pud must be PUD_UP, PUD_DOWN, PUD_OFF");
+    this._pi_gpio_command(def.PI_CMD_PUD, gpio, pud);
+
+};
+
+/**
+ * Sets a glitch filter on a GPIO.
+ *
+ * Level changes on the GPIO are not reported unless the level
+ * has been stable for at least [*steady*] microseconds.  The
+ * level is then reported.  Level changes of less than [*steady*]
+ * microseconds are ignored.
+ *
+ * @param {number} gpio - Port 0-31.
+ * @param {number} steady - Number of setmicroseconds after detection before a change is confirmed.
+ */
+pigpio.prototype.set_glitch_filter = function (gpio, steady) {
+    "use strict";
+    assert_gpio_pin_in_range(gpio,0,31);
+    assert(steady>=0 &amp;&amp; steady&lt;=300000, "steady must be in the range 0 - 30000");
+    this._pi_gpio_command(def.PI_CMD_FG, gpio, steady);
+};
+
 pigpio.prototype._pi_gpio_command = function(command, parameter1, parameter2, next, wait_for_response) {
+    "use strict";
     const cmd = Put()
         .word32le(command)
         .word32le(parameter1)
@@ -193,6 +283,7 @@ pigpio.prototype._pi_gpio_command = function(command, parameter1, parameter2, ne
 };
 
 pigpio.prototype._acquireLock = function () {
+    "use strict";
     if (_LOCKS[this.host+':'+this.port] === undefined) {
         _LOCKS[this.host+':'+this.port] = 'Locked';
     } else {
@@ -201,10 +292,16 @@ pigpio.prototype._acquireLock = function () {
 };
 
 pigpio.prototype._releaseLock = function () {
+    "use strict";
     if (_LOCKS[this.host+':'+this.port] !== undefined) {
         _LOCKS[this.host+':'+this.port] = undefined;
     }
 };
+
+function assert_gpio_pin_in_range (gpio, low , high) {
+    "use strict";
+    assert(gpio>=low &amp;&amp; gpio &lt;=high, 'userGpio must be in the range ' + low + '-' + high + '31');
+}
 
 module.exports = pigpio;
 </code></pre>
@@ -219,7 +316,7 @@ module.exports = pigpio;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun Jan 08 2017 18:40:34 GMT+0000 (GMT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Jan 11 2017 21:31:24 GMT+0000 (GMT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
