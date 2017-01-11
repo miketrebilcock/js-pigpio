@@ -3,12 +3,50 @@ const net = require('net');
 const assert = require('assert');
 const Put = require('put');
 const reverse_string = require('./utils.js').reverse_string;
+const define = require("node-constants")(exports);
 
 const _LOCKS = [];
 
+define({
+// GPIO levels
+    OFF: 0,
+    LOW: 0,
+    CLEAR: 0,
+
+    ON: 1,
+    HIGH: 1,
+    SET: 1,
+
+    TIMEOUT: 2,
+
+// GPIO edges
+
+    RISING_EDGE: 0,
+    FALLING_EDGE: 1,
+    EITHER_EDGE: 2,
+
+// GPIO modes
+
+    INPUT: 0,
+    OUTPUT: 1,
+    ALT0: 4,
+    ALT1: 5,
+    ALT2: 6,
+    ALT3: 7,
+    ALT4: 3,
+    ALT5: 2,
+
+// GPIO Pull Up Down
+
+    PUD_OFF: 0,
+    PUD_DOWN: 1,
+    PUD_UP: 2
+});
+
 /** @class */
 function pigpio() {
-    /* no-empty-function */
+    "use strict";
+
 }
 
 /**
@@ -26,6 +64,7 @@ function pigpio() {
  * @param {Object} [cb] - Callback function.
  */
 pigpio.prototype.pi = function(host, port, cb) {
+    "use strict";
     const that = this;
     if (host === undefined) {
         host = process.env.PIGPIO_ADDR || 'localhost';
@@ -58,6 +97,7 @@ pigpio.prototype.pi = function(host, port, cb) {
  * Half-closes the connection. We might still get some data from the server.
  */
 pigpio.prototype.close = function() {
+    "use strict";
     this.client.end();
 };
 
@@ -87,6 +127,7 @@ pigpio.prototype.close = function() {
  *              500 (most anti-clockwise) - 2500 (most clockwise).
  */
 pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
+    "use strict";
     assert(userGpio>=0 && userGpio <=31, "userGpio must be in the range 0-31");
     assert(pulseWidth>=0 && pulseWidth <=2500, "pulsWidth must be in the range 0-2500");
     this._pi_gpio_command(def.PI_CMD_SERVO, userGpio, pulseWidth);
@@ -108,6 +149,7 @@ pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
  *              255 (full on).
  */
 pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
+    "use strict";
     assert(userGpio>=0 && userGpio <=31, "userGpio must be in the range 0-31");
     assert(dutycycle>=0 && dutycycle <=255, "dutycycle must be in the range 0-255");
     this._pi_gpio_command(def.PI_CMD_PWM, userGpio, dutycycle);
@@ -129,11 +171,27 @@ pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
  * @param {callback} cb - Callback that will receive the result in form of function (err, data).
  */
 pigpio.prototype.getHardwareRevision = function(cb) {
+    "use strict";
     this._pi_gpio_command(def.PI_CMD_HWVER, 0, 0, cb, true);
 
 };
 
+/**
+ * Sets the GPIO mode.
+ *
+ * @param {number} gpio - Port 0-53.
+ * @param {string} mode - Must be either INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4 or ALT5.
+ */
+pigpio.prototype.set_mode = function (gpio, mode) {
+    "use strict";
+    assert(gpio>=0 && gpio <=53, "userGpio must be in the range 0-31");
+    assert([pigpio.INPUT, pigpio.OUTPUT, pigpio.ALT0, pigpio.ALT1, pigpio.ALT2, pigpio.ALT3, pigpio.ALT4, pigpio.ALT5].includes(mode), "Mode must be INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4, ALT5");
+    this._pi_gpio_command(def.PI_CMD_MODES, gpio, mode);
+
+};
+
 pigpio.prototype._pi_gpio_command = function(command, parameter1, parameter2, next, wait_for_response) {
+    "use strict";
     const cmd = Put()
         .word32le(command)
         .word32le(parameter1)
@@ -154,6 +212,7 @@ pigpio.prototype._pi_gpio_command = function(command, parameter1, parameter2, ne
 };
 
 pigpio.prototype._acquireLock = function () {
+    "use strict";
     if (_LOCKS[this.host+':'+this.port] === undefined) {
         _LOCKS[this.host+':'+this.port] = 'Locked';
     } else {
@@ -162,6 +221,7 @@ pigpio.prototype._acquireLock = function () {
 };
 
 pigpio.prototype._releaseLock = function () {
+    "use strict";
     if (_LOCKS[this.host+':'+this.port] !== undefined) {
         _LOCKS[this.host+':'+this.port] = undefined;
     }
