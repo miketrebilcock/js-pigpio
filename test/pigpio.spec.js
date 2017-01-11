@@ -66,7 +66,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='1', "Wrong Command Send");
                     assert(last_command[17]==='0', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -82,7 +82,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='1', "Wrong Command Send");
                     assert(last_command[17]==='1', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -98,7 +98,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='1', "Wrong Command Send");
                     assert(last_command[17]==='4', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -114,7 +114,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='1', "Wrong Command Send");
                     assert(last_command[17]==='5', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -130,7 +130,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='1', "Wrong Command Send");
                     assert(last_command[17]==='6', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -146,7 +146,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='1', "Wrong Command Send");
                     assert(last_command[17]==='7', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -162,7 +162,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='1', "Wrong Command Send");
                     assert(last_command[17]==='3', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -178,7 +178,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='1', "Wrong Command Send");
                     assert(last_command[17]==='2', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -205,6 +205,91 @@ describe('js-pigpio', () => {
             });
         });
 
+        it('set_mode as ALT3', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_mode(1, pigpio.ALT3);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='0', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='7', "Wrong Command Send");
+                    done();
+                }, 100, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_pull_up_down as off', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_pull_up_down(1, pigpio.PUD_OFF);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='2', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong GPIO Port Send");
+                    assert(last_command[17]==='0', "Wrong Argument Send");
+                    done();
+                }, 100, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_pull_up_down as up', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_pull_up_down(1, pigpio.PUD_UP);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='2', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='2', "Wrong Command Send");
+                    done();
+                }, 100, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_pull_up_down as down', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_pull_up_down(1, pigpio.PUD_DOWN);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='2', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong Command Send");
+                    assert(last_command[17]==='1', "Wrong Command Send");
+                    done();
+                }, 100, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_pull_up_down validates inputs', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.set_pull_up_down(-1, pigpio.PUD_DOWN);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_pull_up_down(54, pigpio.PUD_DOWN);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_pull_up_down(1, "TEST");
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_pull_up_down();
+                }).to.throw(Error);
+                pigpio.close();
+
+            });
+        });
+
         it('setServoPulsewidth', (done) => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', 5000, () => {
@@ -215,7 +300,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='1', "Wrong Command Send");
                     assert(last_command[17]==='4', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -267,7 +352,7 @@ describe('js-pigpio', () => {
                     assert(last_command[9]==='2', "Wrong Command Send");
                     assert(last_command[17]==='8', "Wrong Command Send");
                     done();
-                }, 500, done);
+                }, 100, done);
                 pigpio.close();
 
             });
@@ -304,6 +389,53 @@ describe('js-pigpio', () => {
                     pigpio.setPwmDutycycle();
                 }).to.throw(Error);
                 pigpio.close();
+            });
+        });
+    });
+
+    context('Advanced', () => {
+        "use strict";
+        it('set_glitch_filter command is sent', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_glitch_filter(2, 5);
+                setTimeout((done)=>{
+                    assert(last_command[0]==='6', "Wrong Command Sent");
+                    assert(last_command[1]==='1', "Wrong Command Sent");
+                    assert(last_command[9]==='2', "Wrong GPIO Pin Sent");
+                    assert(last_command[17]==='5', "Wrong Argument Sent");
+                    done();
+                }, 100, done);
+                pigpio.close();
+
+            });
+        });
+
+        it('set_glitch_filter validates inputs', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.set_glitch_filter(-1, 5)
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_glitch_filter(54, 5)
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_glitch_filter(54, -1)
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_glitch_filter(54, 300001)
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_glitch_filter(1, "TEST");
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_glitch_filter();
+                }).to.throw(Error);
+                pigpio.close();
+
             });
         });
     });

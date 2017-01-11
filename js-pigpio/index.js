@@ -128,7 +128,7 @@ pigpio.prototype.close = function() {
  */
 pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
     "use strict";
-    assert(userGpio>=0 && userGpio <=31, "userGpio must be in the range 0-31");
+    assert_gpio_pin_in_range(userGpio,0,31);
     assert(pulseWidth>=0 && pulseWidth <=2500, "pulsWidth must be in the range 0-2500");
     this._pi_gpio_command(def.PI_CMD_SERVO, userGpio, pulseWidth);
 };
@@ -150,7 +150,7 @@ pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
  */
 pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
     "use strict";
-    assert(userGpio>=0 && userGpio <=31, "userGpio must be in the range 0-31");
+    assert_gpio_pin_in_range(userGpio,0,31);
     assert(dutycycle>=0 && dutycycle <=255, "dutycycle must be in the range 0-255");
     this._pi_gpio_command(def.PI_CMD_PWM, userGpio, dutycycle);
 };
@@ -184,10 +184,42 @@ pigpio.prototype.getHardwareRevision = function(cb) {
  */
 pigpio.prototype.set_mode = function (gpio, mode) {
     "use strict";
-    assert(gpio>=0 && gpio <=53, "userGpio must be in the range 0-31");
+    assert_gpio_pin_in_range(gpio,0,53);
     assert([this.INPUT, this.OUTPUT, this.ALT0, this.ALT1, this.ALT2, this.ALT3, this.ALT4, this.ALT5].includes(mode), "Mode must be INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4, ALT5");
     this._pi_gpio_command(def.PI_CMD_MODES, gpio, mode);
 
+};
+
+/**
+ * Sets or clears the internal GPIO pull-up/down resistor.
+ *
+ * @param {number} gpio - Port 0-53.
+ * @param {string} pud - Must be either PUD_UP, PUD_DOWN, PUD_OFF.
+ */
+pigpio.prototype.set_pull_up_down = function (gpio, pud) {
+    "use strict";
+    assert_gpio_pin_in_range(gpio,0,53);
+    assert([this.PUD_DOWN, this.PUD_OFF, this.PUD_UP].includes(pud), "pud must be PUD_UP, PUD_DOWN, PUD_OFF");
+    this._pi_gpio_command(def.PI_CMD_PUD, gpio, pud);
+
+};
+
+/**
+ * Sets a glitch filter on a GPIO.
+ *
+ * Level changes on the GPIO are not reported unless the level
+ * has been stable for at least [*steady*] microseconds.  The
+ * level is then reported.  Level changes of less than [*steady*]
+ * microseconds are ignored.
+ *
+ * @param {number} gpio - Port 0-31.
+ * @param {number} steady - Number of setmicroseconds after detection before a change is confirmed.
+ */
+pigpio.prototype.set_glitch_filter = function (gpio, steady) {
+    "use strict";
+    assert_gpio_pin_in_range(gpio,0,31);
+    assert(steady>=0 && steady<=300000, "steady must be in the range 0 - 30000");
+    this._pi_gpio_command(def.PI_CMD_FG, gpio, steady);
 };
 
 pigpio.prototype._pi_gpio_command = function(command, parameter1, parameter2, next, wait_for_response) {
@@ -226,5 +258,10 @@ pigpio.prototype._releaseLock = function () {
         _LOCKS[this.host+':'+this.port] = undefined;
     }
 };
+
+function assert_gpio_pin_in_range (gpio, low , high) {
+    "use strict";
+    assert(gpio>=low && gpio <=high, 'userGpio must be in the range ' + low + '-' + high + '31');
+}
 
 module.exports = pigpio;
