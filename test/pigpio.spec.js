@@ -4,7 +4,7 @@ const assert = require('chai').assert;
 const expect = require('chai').expect;
 const PiGPIO = require('../js-pigpio/index.js');
 const net = require('net');
-const reverse_string = require('../js-pigpio/utils.js').reverse_string;
+const Put = require('put');
 
 let last_command = "";
 let server_response = "";
@@ -16,10 +16,7 @@ describe('js-pigpio', () => {
         socket.on("data", (data) => {
             last_command = data.toString('hex');
             if (server_response!=="") {
-                server_response = reverse_string(server_response);
-                var replyData = new Buffer(server_response,
-                    'hex');
-
+                var replyData = server_response;
                 socket.write(replyData);
                 server_response="";
             }
@@ -68,7 +65,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -84,7 +80,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -100,7 +95,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -116,7 +110,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -132,7 +125,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -148,7 +140,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -164,7 +155,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -180,7 +170,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -221,6 +210,23 @@ describe('js-pigpio', () => {
             });
         });
 
+        it('get_mode_returns_a_value', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                const cmd = Put()
+                    .word32le(0x0104);
+                server_response = cmd.buffer();
+                pigpio.get_mode(2,(err, data)=>{
+                    assert (err === undefined, "Error occured");
+                    assert(pigpio.OUTPUT===data,"Invalid Server response");
+                    assert(last_command.substr(0,2)==='01', "Wrong Command Send");
+                    pigpio.close();
+                    done();
+                });
+            });
+        });
+
         it('set_pull_up_down as off', (done) => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', 5000, () => {
@@ -233,7 +239,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -249,7 +254,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -286,7 +290,6 @@ describe('js-pigpio', () => {
                     pigpio.set_pull_up_down();
                 }).to.throw(Error);
                 pigpio.close();
-
             });
         });
 
@@ -302,7 +305,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -338,7 +340,6 @@ describe('js-pigpio', () => {
                     pigpio.setServoPulsewidth(1);
                 }).to.throw(Error);
                 pigpio.close();
-
             });
         });
 
@@ -354,7 +355,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -408,7 +408,6 @@ describe('js-pigpio', () => {
                     done();
                 }, 100, done);
                 pigpio.close();
-
             });
         });
 
@@ -445,9 +444,14 @@ describe('js-pigpio', () => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', 5000, () => {
                 "use strict";
-                server_response = 'a02082';
+                const cmd = Put()
+                    .word32le(0x0011)
+                    .word32le(0)
+                    .word32le(0)
+                    .word32le(0x00a02082);
+                server_response = cmd.buffer();
                 pigpio.getHardwareRevision((err, data)=>{
-                    assert('a02082'===data,"Invalid Server response");
+                    assert(parseInt('a02082',16)===data,"Invalid Server response");
                     assert(last_command.substr(0,2)==='11', "Wrong Command Send");
                     pigpio.close();
                     done();

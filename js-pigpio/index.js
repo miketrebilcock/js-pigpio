@@ -85,7 +85,6 @@ pigpio.prototype.pi = function(host, port, cb) {
         if (that._next !== undefined) {
             that._next(undefined, reverse_string(data.toString('hex')));
         }
-
     });
 
     this.client.on('error', (e) => {
@@ -173,7 +172,6 @@ pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
 pigpio.prototype.getHardwareRevision = function(cb) {
     "use strict";
     this._pi_gpio_command(def.PI_CMD_HWVER, 0, 0, cb, true);
-
 };
 
 /**
@@ -189,6 +187,18 @@ pigpio.prototype.set_mode = function (gpio, mode) {
     this._pi_gpio_command(def.PI_CMD_MODES, gpio, mode);
 
 };
+
+/**
+ * Returns the GPIO mode.
+ *
+ * @param {number} gpio - Port 0-53.
+ * @param {callback} callback - Function to be run when the data has been received.
+ */
+pigpio.prototype.get_mode = function (gpio, callback) {
+    "use strict";
+    assert_gpio_pin_in_range(gpio,0,53);
+    this._pi_gpio_command(def.PI_CMD_MODEG, gpio, 0, callback, true);
+}
 
 /**
  * Sets or clears the internal GPIO pull-up/down resistor.
