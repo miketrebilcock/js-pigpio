@@ -428,6 +428,93 @@ describe('js-pigpio', () => {
         });
     });
 
+    context('Intermediate', () => {
+        "use strict";
+        it('set_PWM_frequency', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                pigpio.set_PWM_frequency(2,15);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='7', "Wrong Command Send");
+                    assert(last_command[9]==='2', "Wrong Command Send");
+                    assert(last_command[17]==='f', "Wrong Command Send");
+                    done();
+                }, 100, done);
+                pigpio.close();
+            });
+        });
+
+        it('set_PWM_dutycycle - errors when out of range gpiopin sent', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.set_PWM_frequency(-1);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_PWM_frequency(32);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_PWM_frequency();
+                }).to.throw(Error);
+                pigpio.close();
+            });
+        });
+
+        it('set_PWM_dutycycle - errors when out of range frequency sent', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.set_PWM_frequency(3,-1);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_PWM_frequency(4, 0);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.set_PWM_frequency();
+                }).to.throw(Error);
+                pigpio.close();
+            });
+        });
+
+        it('get_PWM_frequecy_returns_a_value', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                const cmd = Put()
+                    .word32le(0x80000000);
+                server_response = cmd.buffer();
+                pigpio.get_PWM_frequency(2,(err, data)=>{
+                    assert (err === undefined, "Error occured");
+                    assert(128===data,"Invalid Server response");
+                    assert(parseInt(last_command.substr(0,2),16)===23, "Wrong Command Send");
+                    pigpio.close();
+                    done();
+                });
+            });
+        });
+
+        it('get_PWM_dutycycle - errors when out of range gpiopin sent', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.get_PWM_dutycycle(-1);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.get_PWM_dutycycle(32);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.get_PWM_dutycycle();
+                }).to.throw(Error);
+                pigpio.close();
+            });
+        });
+
+    });
+
     context('Advanced', () => {
         "use strict";
         it('set_glitch_filter command is sent', (done) => {
