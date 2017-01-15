@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 const def = require('./definitions.js');
 const net = require('net');
 const assert = require('assert');
@@ -147,13 +149,80 @@ pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
  *              0 (off),
  *              255 (full on).
  */
-pigpio.prototype.setPwmDutycycle = function(userGpio, dutycycle) {
+pigpio.prototype.set_PWM_dutycycle = function(userGpio, dutycycle) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
     assert(dutycycle>=0 && dutycycle <=255, "dutycycle must be in the range 0-255");
-    this._pi_gpio_command(def.PI_CMD_PWM, userGpio, dutycycle);
+    this._pi_gpio_command(def.PI_CMD_PWM, userGpio, dutycycle, undefined, true);
 };
 
+/**
+ * Returns the PWM dutycycle being used on the GPIO.
+ *
+ * For normal PWM the dutycycle will be out of the defined range
+ * for the GPIO (see [*get_PWM_range*]).
+ * If a hardware clock is active on the GPIO the reported
+ * dutycycle will be 500000 (500k) out of 1000000 (1M).
+ * If hardware PWM is active on the GPIO the reported dutycycle
+ * will be out of a 1000000 (1M).
+ *
+ * @param {number} userGpio - The number of the gpio to address (0-31).
+ * @param {callback} cb - Function that the value will be passed back to in form function(err, data).
+ */
+pigpio.prototype.get_PWM_dutycycle = function(userGpio, cb) {
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    this._pi_gpio_command(def.PI_CMD_GDC, userGpio, 0, cb, true);
+};
+
+/**
+ * Sets the frequency (in Hz) of the PWM to be used on the GPIO.
+ *
+ * If PWM is currently active on the GPIO it will be switched
+ * off and then back on at the new frequency.
+ * Each GPIO can be independently set to one of 18 different PWM frequencies.
+ * The selectable frequencies depend upon the sample rate which
+ * may be 1, 2, 4, 5, 8, or 10 microseconds (default 5).
+ * The sample rate is set when the pigpio daemon is started.
+ *
+ * The frequencies for each sample rate are:
+ * hertz
+ *      1:   40000 20000 10000 8000 5000 4000 2500 2000 1600
+ *            1250  1000   800  500  400  250  200  100   50
+ *      2:   20000 10000  5000 4000 2500 2000 1250 1000  800
+ *             625   500   400  250  200  125  100   50   25
+ *      4:   10000  5000  2500 2000 1250 1000  625  500  400
+ *             313   250   200  125  100   63   50   25   13
+ * sample
+ * rate
+ * (us)  5:  8000  4000  2000 1600 1000  800  500  400  320
+ *            250   200   160  100   80   50   40   20   10
+ *       8:  5000  2500  1250 1000  625  500  313  250  200
+ *            156   125   100   63   50   31   25   13    6
+ *      10:  4000  2000  1000  800  500  400  250  200  160
+ *            125   100    80   50   40   25   20   10    5.
+ *
+ * @param {number} userGpio - The number of the gpio to address (0-31).
+ * @param {number} frequency - Frequency >=0 Hz.
+ */
+pigpio.prototype.set_PWM_frequency = function (userGpio, frequency) {
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    assert(frequency>=0, "frequency must be greater than or equal to 0");
+    this._pi_gpio_command(def.PI_CMD_PFS, userGpio, frequency);
+};
+
+/**
+ * Returns the frequency of PWM being used on the GPIO.
+ *
+ * @param {number} userGpio - The number of the gpio to address (0-31).
+ * @param {callback} cb - Function that the value will be passed back to in form function(err, data).
+ */
+pigpio.prototype.get_PWM_frequency = function(userGpio, cb) {
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    this._pi_gpio_command(def.PI_CMD_PFG, userGpio, 0, cb, true);
+};
 
 /**
  *
@@ -252,14 +321,22 @@ pigpio.prototype._pi_gpio_command = function(command, parameter1, parameter2, ne
         }
     }
 };
-
+/* eslint: no-unmodified-loop-condition */
 pigpio.prototype._acquireLock = function () {
     "use strict";
-    if (_LOCKS[this.host+':'+this.port] === undefined) {
-        _LOCKS[this.host+':'+this.port] = 'Locked';
-    } else {
-        throw new Error ('Can not acquire Lock');
+    let timeout = false;
+    setTimeout(()=>{
+        timeout = true
+    }, 500);
+    /* eslint-disable no-unmodified-loop-condition */
+    while (!timeout && _LOCKS[this.host+':'+this.port] !== undefined) {
+        if (_LOCKS[this.host + ':' + this.port] === undefined) {
+            _LOCKS[this.host + ':' + this.port] = 'Locked';
+        } else {
+            throw new Error('Can not acquire Lock');
+        }
     }
+    /* eslint-disable no-unmodified-loop-condition */
 };
 
 pigpio.prototype._releaseLock = function () {

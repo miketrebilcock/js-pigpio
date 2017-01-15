@@ -19,5 +19,8 @@
     "extends": ["node"],
     "plugins": [
         "jsdoc"
-    ]
+    ],
+    "env": {
+        "node": true
+    }
 }

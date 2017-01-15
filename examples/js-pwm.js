@@ -17,8 +17,8 @@ PiGPIO.pi(HOST, PORT, (err) => {
     setTimeout(() => { run = false; }, 20000);
 
     var pwmUpdateInterval = setInterval(() => {
-        PiGPIO.setPwmDutycycle(LED_1_GPIO, dcStates[dcIndex]);
-        PiGPIO.setPwmDutycycle(LED_2_GPIO, dcStates[4 - dcIndex]);
+        PiGPIO.set_PWM_dutycycle(LED_1_GPIO, dcStates[dcIndex]);
+        PiGPIO.set_PWM_dutycycle(LED_2_GPIO, dcStates[4 - dcIndex]);
 
         dcIndex += 1;
         if (dcIndex > 4) {
@@ -26,8 +26,8 @@ PiGPIO.pi(HOST, PORT, (err) => {
         }
 
         if (!run) {
-            PiGPIO.setPwmDutycycle(LED_1_GPIO, 0); // pwm off
-            PiGPIO.setPwmDutycycle(LED_2_GPIO, 0); // pwm off
+            PiGPIO.set_PWM_dutycycle(LED_1_GPIO, 0); // pwm off
+            PiGPIO.set_PWM_dutycycle(LED_2_GPIO, 0); // pwm off
             PiGPIO.close();
             clearInterval(pwmUpdateInterval);
         }

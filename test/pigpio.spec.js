@@ -1,4 +1,5 @@
-/*global it describe context */
+/* global it describe context */
+/* eslint-env node, mocha */
 
 const assert = require('chai').assert;
 const expect = require('chai').expect;
@@ -215,7 +216,7 @@ describe('js-pigpio', () => {
             pigpio.pi('127.0.0.1', 5000, () => {
                 "use strict";
                 const cmd = Put()
-                    .word32le(0x0104);
+                    .word32le(0x0100);
                 server_response = cmd.buffer();
                 pigpio.get_mode(2,(err, data)=>{
                     assert (err === undefined, "Error occured");
@@ -343,11 +344,11 @@ describe('js-pigpio', () => {
             });
         });
 
-        it('setPwmDutycycle', (done) => {
+        it('set_PWM_dutycycle', (done) => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', 5000, () => {
                 "use strict";
-                pigpio.setPwmDutycycle(2,8);
+                pigpio.set_PWM_dutycycle(2,8);
                 setTimeout((done)=>{
                     assert(last_command[1]==='5', "Wrong Command Send");
                     assert(last_command[9]==='2', "Wrong Command Send");
@@ -358,35 +359,69 @@ describe('js-pigpio', () => {
             });
         });
 
-        it('setPwmDutycycle - errors when out of range gpiopin sent', () => {
+        it('set_PWM_dutycycle - errors when out of range gpiopin sent', () => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', 5000, () => {
                 "use strict";
                 expect(() => {
-                    pigpio.setPwmDutycycle(-1);
+                    pigpio.set_PWM_dutycycle(-1);
                 }).to.throw(Error);
                 expect(() => {
-                    pigpio.setPwmDutycycle(2600);
+                    pigpio.set_PWM_dutycycle(2600);
                 }).to.throw(Error);
                 expect(() => {
-                    pigpio.setPwmDutycycle();
+                    pigpio.set_PWM_dutycycle();
                 }).to.throw(Error);
                 pigpio.close();
             });
         });
 
-        it('setPwmDutycycle - errors when out of range dutycycle sent', () => {
+        it('set_PWM_dutycycle - errors when out of range dutycycle sent', () => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', 5000, () => {
                 "use strict";
                 expect(() => {
-                    pigpio.setPwmDutycycle(3,-1);
+                    pigpio.set_PWM_dutycycle(3,-1);
                 }).to.throw(Error);
                 expect(() => {
-                    pigpio.setPwmDutycycle(4,256);
+                    pigpio.set_PWM_dutycycle(4,256);
                 }).to.throw(Error);
                 expect(() => {
-                    pigpio.setPwmDutycycle();
+                    pigpio.set_PWM_dutycycle();
+                }).to.throw(Error);
+                pigpio.close();
+            });
+        });
+
+        it('get_PWM_dutycycle_returns_a_value', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                const cmd = Put()
+                    .word32le(0x80000000);
+                server_response = cmd.buffer();
+                pigpio.get_PWM_dutycycle(2,(err, data)=>{
+                    assert (err === undefined, "Error occured");
+                    assert(128===data,"Invalid Server response");
+                    assert(parseInt(last_command.substr(0,2),16)===83, "Wrong Command Send");
+                    pigpio.close();
+                    done();
+                });
+            });
+        });
+
+        it('get_PWM_dutycycle - errors when out of range gpiopin sent', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', 5000, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.get_PWM_dutycycle(-1);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.get_PWM_dutycycle(32);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.get_PWM_dutycycle();
                 }).to.throw(Error);
                 pigpio.close();
             });
