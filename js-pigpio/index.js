@@ -176,6 +176,54 @@ pigpio.prototype.get_PWM_dutycycle = function(userGpio, cb) {
 };
 
 /**
+ * Sets the range of PWM values to be used on the GPIO.
+ *
+ * @param {number} userGpio - The number of the gpio to address (0-31).
+ * @param {number} range - A number in the range 25-40000.
+ *
+ * @example
+ *  pi.set_PWM_range(9, 100)  // now  25 1/4,   50 1/2,   75 3/4 on
+ *  pi.set_PWM_range(9, 500)  // now 125 1/4,  250 1/2,  375 3/4 on
+ *  pi.set_PWM_range(9, 3000) // now 750 1/4, 1500 1/2, 2250 3/4 on
+ */
+pigpio.prototype.set_PWM_range = function (userGpio, range) {
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    assert(range>=25 && range <=40000, "range must be in the range 25-40000.");
+    this._pi_gpio_command(def.PI_CMD_PRS, userGpio, range, undefined, true);
+};
+
+/**
+ * Returns the range of PWM values being used on the GPIO.
+ * If a hardware clock or hardware PWM is active on the GPIO the reported range will be 1000000 (1M).
+ *
+ * @param {number} userGpio - The number of the gpio to address (0-31).
+ * @param {callback} cb - Function that the value will be passed back to in form function(err, data).
+ */
+pigpio.prototype.get_PWM_range = function(userGpio, cb) {
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    this._pi_gpio_command(def.PI_CMD_PRG, userGpio, 0, cb, true);
+};
+
+/**
+ * Returns the real (underlying) range of PWM values being used on the GPIO.
+ *
+ * If a hardware clock is active on the GPIO the reported real range will be 1000000 (1M).
+ * If hardware PWM is active on the GPIO the reported real range
+ * will be approximately 250M divided by the set PWM frequency.
+ *
+ * @param {number} userGpio - The number of the gpio to address (0-31).
+ * @param {callback} cb - Function that the value will be passed back to in form function(err, data).
+ */
+pigpio.prototype.get_PWM_real_range = function(userGpio, cb) {
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    this._pi_gpio_command(def.PI_CMD_PRRG, userGpio, 0, cb, true);
+};
+
+
+/**
  * Sets the frequency (in Hz) of the PWM to be used on the GPIO.
  *
  * If PWM is currently active on the GPIO it will be switched
@@ -223,6 +271,10 @@ pigpio.prototype.get_PWM_frequency = function(userGpio, cb) {
     assert_gpio_pin_in_range(userGpio,0,31);
     this._pi_gpio_command(def.PI_CMD_PFG, userGpio, 0, cb, true);
 };
+
+/*
+
+ */
 
 /**
  *
