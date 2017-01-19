@@ -155,6 +155,7 @@ pigpio.prototype.read = function (userGpio, cb) {
 pigpio.prototype.write = function (userGpio, level) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
+    assert(level===0 || level ===1, "level must be 0 or 1.");
     this._pi_gpio_command(def.PI_CMD_WRITE, userGpio, level, undefined, true);
 };
 

@@ -273,6 +273,105 @@ describe('beginner', () => {
         });
     });
 
+    context('read command', () => {
+        it('read a value from a pin', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', port, () => {
+                "use strict";
+                pigpio.read(1);
+                const cmd = Put()
+                    .word32le(0x0100);
+                server_response = cmd.buffer();
+                pigpio.read(2,(err, data)=>{
+                    assert (err === undefined, "Error occured");
+                    assert(1===data,"Invalid Server response");
+                    assert(last_command.substr(0,2)==='03', "Wrong Command Send");
+                    pigpio.close();
+                    done();
+                });
+            });
+        });
+        it('validates inputs', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', port, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.read(-1);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.read(35);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.read();
+                }).to.throw(Error);
+                pigpio.close();
+            });
+        });
+    });
+
+    context('write command', () => {
+        it('writes a 1 to a pin', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', port, () => {
+                "use strict";
+                pigpio.write(1,1);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='4', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong parameter Send");
+                    assert(last_command[17]==='1', "Wrong Value send");
+                    done();
+                }, 100, done);
+                pigpio.close();
+            });
+        });
+        it('writes a 0 to a pin', (done) => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', port, () => {
+                "use strict";
+                pigpio.write(1,0);
+                setTimeout((done)=>{
+                    assert(last_command[1]==='4', "Wrong Command Send");
+                    assert(last_command[9]==='1', "Wrong parameter Send");
+                    assert(last_command[17]==='0', "Wrong Value send");
+                    done();
+                }, 100, done);
+                pigpio.close();
+            });
+        });
+        it('validates write pin', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', port, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.write(-1,1);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.write(35,0);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.write();
+                }).to.throw(Error);
+                pigpio.close();
+            });
+        });
+        it('validates write level', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', port, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.write(1,-1);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.write(2,2);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.write(3);
+                }).to.throw(Error);
+                pigpio.close();
+            });
+        });
+    });
+
     context ('ServoPulsewith', () => {
         it('setServoPulsewidth', (done) => {
             const pigpio = new PiGPIO();
@@ -360,7 +459,7 @@ describe('beginner', () => {
 
         it('set_PWM_dutycycle - errors when out of range dutycycle sent', () => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
                     pigpio.set_PWM_dutycycle(3,-1);
