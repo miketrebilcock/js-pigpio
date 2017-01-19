@@ -135,6 +135,30 @@ pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
 };
 
 /**
+ * Returns the GPIO level.
+ *
+ * @param {number} userGpio - The number of the gpio to address. 0-31.
+ * @param {callback} cb - The function to be called with the result.
+ */
+pigpio.prototype.read = function (userGpio, cb) {
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    this._pi_gpio_command(def.PI_CMD_READ, userGpio, 0, cb, true);
+};
+
+/**
+ * Returns the GPIO level.
+ *
+ * @param {number} userGpio - The number of the gpio to address. 0-31.
+ * @param {number} level - The output level 0 or 1.
+ */
+pigpio.prototype.write = function (userGpio, level) {
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    this._pi_gpio_command(def.PI_CMD_WRITE, userGpio, level, undefined, true);
+};
+
+/**
  * Starts (non-zero dutycycle) or stops (0) PWM pulses on the gpio.
  *
  * @example

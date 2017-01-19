@@ -7,10 +7,11 @@ const PiGPIO = require('../js-pigpio/index.js');
 const net = require('net');
 const Put = require('put');
 
-let last_command = "";
-let server_response = "";
+describe('beginner', () => {
 
-describe('js-pigpio', () => {
+    let last_command = "";
+    let server_response = "";
+    const port = 5000;
 
     //setup server and listen for commands
     net.createServer((socket)=>{
@@ -27,36 +28,12 @@ describe('js-pigpio', () => {
             throw new Error(ex);
         });
     }).
-    listen(5000);
+    listen(port);
 
-    context('Essential', () => {
-        it('connects using specificed port', () => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1',5000, (err, data) => {
-                "use strict";
-                assert(err===undefined, "Error Creating local connection");
-                assert(data===undefined, "Error Creating local connection");
-                assert(pigpio.address==='127.0.0.1', "Error Creating local connection");
-                assert(pigpio.port===5000, "Error Creating local connection");
-                pigpio.close();
-            });
-        });
-        it('attempts to connect to local when no server or post specified', (done) => {
-            const pigpio = new PiGPIO();
-            pigpio.pi(undefined, undefined, (err) => {
-                "use strict";
-                assert(err.code==='ECONNREFUSED', "Error Creating local connection");
-                assert(err.address==='127.0.0.1', "Error Creating local connection");
-                assert(err.port===8888, "Error Creating local connection");
-                pigpio.close();
-                done();
-            });
-        });
-    });
-    context('Beginner', () => {
+    context('mode', () => {
         it('set_mode as INPUT', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.INPUT);
                 setTimeout((done)=>{
@@ -71,7 +48,7 @@ describe('js-pigpio', () => {
 
         it('set_mode as OUTPUT', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.OUTPUT);
                 setTimeout((done)=>{
@@ -86,7 +63,7 @@ describe('js-pigpio', () => {
 
         it('set_mode as ALT0', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT0);
                 setTimeout((done)=>{
@@ -101,7 +78,7 @@ describe('js-pigpio', () => {
 
         it('set_mode as ALT1', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT1);
                 setTimeout((done)=>{
@@ -116,7 +93,7 @@ describe('js-pigpio', () => {
 
         it('set_mode as ALT2', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT2);
                 setTimeout((done)=>{
@@ -131,7 +108,7 @@ describe('js-pigpio', () => {
 
         it('set_mode as ALT3', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT3);
                 setTimeout((done)=>{
@@ -146,7 +123,7 @@ describe('js-pigpio', () => {
 
         it('set_mode as ALT4', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT4);
                 setTimeout((done)=>{
@@ -161,7 +138,7 @@ describe('js-pigpio', () => {
 
         it('set_mode as ALT5', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT5);
                 setTimeout((done)=>{
@@ -176,7 +153,7 @@ describe('js-pigpio', () => {
 
         it('set_mode validates inputs', () => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
                     pigpio.set_mode(-1, pigpio.OUTPUT);
@@ -197,7 +174,7 @@ describe('js-pigpio', () => {
 
         it('set_mode as ALT3', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT3);
                 setTimeout((done)=>{
@@ -213,7 +190,7 @@ describe('js-pigpio', () => {
 
         it('get_mode_returns_a_value', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 const cmd = Put()
                     .word32le(0x0100);
@@ -227,10 +204,11 @@ describe('js-pigpio', () => {
                 });
             });
         });
-
+    });
+    context('pull_up_down', () => {
         it('set_pull_up_down as off', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_pull_up_down(1, pigpio.PUD_OFF);
                 setTimeout((done)=>{
@@ -245,7 +223,7 @@ describe('js-pigpio', () => {
 
         it('set_pull_up_down as up', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_pull_up_down(1, pigpio.PUD_UP);
                 setTimeout((done)=>{
@@ -260,7 +238,7 @@ describe('js-pigpio', () => {
 
         it('set_pull_up_down as down', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_pull_up_down(1, pigpio.PUD_DOWN);
                 setTimeout((done)=>{
@@ -276,7 +254,7 @@ describe('js-pigpio', () => {
 
         it('set_pull_up_down validates inputs', () => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
                     pigpio.set_pull_up_down(-1, pigpio.PUD_DOWN);
@@ -293,10 +271,12 @@ describe('js-pigpio', () => {
                 pigpio.close();
             });
         });
+    });
 
+    context ('ServoPulsewith', () => {
         it('setServoPulsewidth', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.setServoPulsewidth(1,4);
                 setTimeout((done)=>{
@@ -311,7 +291,7 @@ describe('js-pigpio', () => {
 
         it('setServoPulsewidth - errors when out of range gpiopin sent', () => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
                     pigpio.setServoPulsewidth(-1);
@@ -329,7 +309,7 @@ describe('js-pigpio', () => {
 
         it('setServoPulsewidth - errors when out of range pulsewidth sent', () => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
                     pigpio.setServoPulsewidth(1,-1);
@@ -343,10 +323,12 @@ describe('js-pigpio', () => {
                 pigpio.close();
             });
         });
+    });
 
+    context('PWM_dutycycle', ()=>{
         it('set_PWM_dutycycle', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_PWM_dutycycle(2,8);
                 setTimeout((done)=>{
@@ -361,7 +343,7 @@ describe('js-pigpio', () => {
 
         it('set_PWM_dutycycle - errors when out of range gpiopin sent', () => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
                     pigpio.set_PWM_dutycycle(-1);
@@ -395,7 +377,7 @@ describe('js-pigpio', () => {
 
         it('get_PWM_dutycycle_returns_a_value', (done) => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 const cmd = Put()
                     .word32le(0x80000000);
@@ -412,7 +394,7 @@ describe('js-pigpio', () => {
 
         it('get_PWM_dutycycle - errors when out of range gpiopin sent', () => {
             const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
+            pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
                     pigpio.get_PWM_dutycycle(-1);
@@ -424,247 +406,6 @@ describe('js-pigpio', () => {
                     pigpio.get_PWM_dutycycle();
                 }).to.throw(Error);
                 pigpio.close();
-            });
-        });
-    });
-
-    context('Intermediate', () => {
-        "use strict";
-        it('set_PWM_frequency', (done) => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                pigpio.set_PWM_frequency(2,15);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='7', "Wrong Command Send");
-                    assert(last_command[9]==='2', "Wrong Command Send");
-                    assert(last_command[17]==='f', "Wrong Command Send");
-                    done();
-                }, 100, done);
-                pigpio.close();
-            });
-        });
-
-        it('set_PWM_dutycycle - errors when out of range gpiopin sent', () => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                expect(() => {
-                    pigpio.set_PWM_frequency(-1);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_PWM_frequency(32);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_PWM_frequency();
-                }).to.throw(Error);
-                pigpio.close();
-            });
-        });
-
-        it('set_PWM_dutycycle - errors when out of range frequency sent', () => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                expect(() => {
-                    pigpio.set_PWM_frequency(3,-1);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_PWM_frequency(4, 0);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_PWM_frequency();
-                }).to.throw(Error);
-                pigpio.close();
-            });
-        });
-
-        it('set_PWM_range', (done) => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                pigpio.set_PWM_range(2,25);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='6', "Wrong Command Sent");
-                    assert(last_command[9]==='2', "Wrong Pin Sent");
-                    assert(parseInt(last_command.substr(16,2),16)===25, "Wrong value Sent");
-                    done();
-                }, 100, done);
-                pigpio.close();
-            });
-        });
-
-        it('set_PWM_range - errors when out of range gpiopin sent', () => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                expect(() => {
-                    pigpio.set_PWM_range(-1);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_PWM_range(32);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_PWM_range();
-                }).to.throw(Error);
-                pigpio.close();
-            });
-        });
-
-        it('set_PWM_range - errors when out-of-range range sent', () => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                expect(() => {
-                    pigpio.set_PWM_range(3,24);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_PWM_range(4, 0);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_PWM_range(4, 40000);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_PWM_range();
-                }).to.throw(Error);
-                pigpio.close();
-            });
-        });
-
-        it('get_PWM_range_returns_a_value', (done) => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                const cmd = Put()
-                    .word32le(0x80000000);
-                server_response = cmd.buffer();
-                pigpio.get_PWM_range(2,(err, data)=>{
-                    assert (err === undefined, "Error occured");
-                    assert(128===data,"Invalid Server response");
-                    assert(parseInt(last_command.substr(0,2),16)===22, "Wrong Command Send");
-                    pigpio.close();
-                    done();
-                });
-            });
-        });
-
-        it('get_PWM_real_range_returns_a_value', (done) => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                const cmd = Put()
-                    .word32le(0x80000000);
-                server_response = cmd.buffer();
-                pigpio.get_PWM_real_range(2,(err, data)=>{
-                    assert (err === undefined, "Error occured");
-                    assert(128===data,"Invalid Server response");
-                    assert(parseInt(last_command.substr(0,2),16)===24, "Wrong Command Send");
-                    pigpio.close();
-                    done();
-                });
-            });
-        });
-
-
-        it('get_PWM_frequecy_returns_a_value', (done) => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                const cmd = Put()
-                    .word32le(0x80000000);
-                server_response = cmd.buffer();
-                pigpio.get_PWM_frequency(2,(err, data)=>{
-                    assert (err === undefined, "Error occured");
-                    assert(128===data,"Invalid Server response");
-                    assert(parseInt(last_command.substr(0,2),16)===23, "Wrong Command Send");
-                    pigpio.close();
-                    done();
-                });
-            });
-        });
-
-        it('get_PWM_dutycycle - errors when out of range gpiopin sent', () => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                expect(() => {
-                    pigpio.get_PWM_dutycycle(-1);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.get_PWM_dutycycle(32);
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.get_PWM_dutycycle();
-                }).to.throw(Error);
-                pigpio.close();
-            });
-        });
-
-    });
-
-    context('Advanced', () => {
-        "use strict";
-        it('set_glitch_filter command is sent', (done) => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                pigpio.set_glitch_filter(2, 5);
-                setTimeout((done)=>{
-                    assert(last_command[0]==='6', "Wrong Command Sent");
-                    assert(last_command[1]==='1', "Wrong Command Sent");
-                    assert(last_command[9]==='2', "Wrong GPIO Pin Sent");
-                    assert(last_command[17]==='5', "Wrong Argument Sent");
-                    done();
-                }, 100, done);
-                pigpio.close();
-            });
-        });
-
-        it('set_glitch_filter validates inputs', () => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                expect(() => {
-                    pigpio.set_glitch_filter(-1, 5)
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_glitch_filter(54, 5)
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_glitch_filter(54, -1)
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_glitch_filter(54, 300001)
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_glitch_filter(1, "TEST");
-                }).to.throw(Error);
-                expect(() => {
-                    pigpio.set_glitch_filter();
-                }).to.throw(Error);
-                pigpio.close();
-
-            });
-        });
-    });
-
-    context('Utils', () => {
-        it('get_hardware_revision', (done) => {
-            const pigpio = new PiGPIO();
-            pigpio.pi('127.0.0.1', 5000, () => {
-                "use strict";
-                const cmd = Put()
-                    .word32le(0x0011)
-                    .word32le(0)
-                    .word32le(0)
-                    .word32le(0x00a02082);
-                server_response = cmd.buffer();
-                pigpio.getHardwareRevision((err, data)=>{
-                    assert(parseInt('a02082',16)===data,"Invalid Server response");
-                    assert(last_command.substr(0,2)==='11', "Wrong Command Send");
-                    pigpio.close();
-                    done();
-                });
             });
         });
     });
