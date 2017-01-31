@@ -71,16 +71,19 @@ exports._pi_gpio_command = function(socketlock, command, parameter1, parameter2,
         .word32le(parameter1)
         .word32le(parameter2)
         .word32le(0);
+
     socketlock._acquireLock();
+
+    if (next !== undefined) {
+        socketlock._next[command] = next;
+    }
+
     if(!socketlock.s.write(cmd.buffer())) {
         next(new Error("Error Sending Command to Pi: "+command));
     }
-    if(wait_for_response) {
-        socketlock._next[command] = next;
-    } else {
+
+    if(!wait_for_response) {
         socketlock._releaseLock();
-        if( next !== undefined) {
-            next();
-        }
     }
+
 };

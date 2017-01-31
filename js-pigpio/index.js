@@ -156,6 +156,7 @@ pigpio.prototype.read = function (userGpio, cb) {
  *
  * @param {number} userGpio - The number of the gpio to address. 0-31.
  * @param {number} level - The output level 0 or 1.
+ * @param {callback} cb - The function to be called with the result.
  */
 pigpio.prototype.write = function (userGpio, level, cb) {
     "use strict";
@@ -355,9 +356,7 @@ pigpio.prototype.set_mode = function (gpio, mode) {
     "use strict";
     assert_gpio_pin_in_range(gpio,0,53);
     assert([this.INPUT, this.OUTPUT, this.ALT0, this.ALT1, this.ALT2, this.ALT3, this.ALT4, this.ALT5].includes(mode), "Mode must be INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4, ALT5");
-    console.log("Sending GPIO Command");
     _pi_gpio_command(this.sl,def.PI_CMD_MODES, gpio, mode);
-    console.log("GPIO Command Sent");
 };
 
 /**

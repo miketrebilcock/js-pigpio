@@ -18,14 +18,18 @@ describe('advanced', () => {
         socket.on("data", (data) => {
             if(parseInt((data.toString('hex')).substr(0,2),16)===99) {
                 event_port = socket.remotePort;
+                socket.write(data);
             }
 
             if(socket.remotePort !== event_port) {
                 last_command = data.toString('hex');
                 if (server_response !== "") {
-                    var replyData = server_response;
-                    socket.write(replyData);
-                    server_response = "";
+                    const replyData = server_response;
+                    if(socket.write(replyData)) {
+                        server_response = "";
+                    } else {
+                        throw new Error;
+                    }
                 }
             }
         });
@@ -36,6 +40,26 @@ describe('advanced', () => {
     }).
     listen(port);
 
+    function lastCommand() {
+        const size = last_command.length;
+        return parseInt(last_command.substr(size-32,2),16);
+    }
+
+    function lastParameter1() {
+        const size = last_command.length;
+        return parseInt(last_command.substr(size-30,8),16);
+    }
+
+    function lastParameter2() {
+        const size = last_command.length;
+        return parseInt(last_command.substr(size-22,8),16);
+    }
+
+    function assert_correct_message_sent(command, parameter1, parameter2) {
+        assert(lastCommand() === command, "Wrong Command Sent");
+        assert(lastParameter1() === parameter1, "Wrong Parameter1 Sent");
+        assert(lastParameter2() === parameter2, "Wrong Parameter2 Sent");
+    }
 
     it('set_glitch_filter command is sent', (done) => {
         const pigpio = new PiGPIO();
@@ -43,9 +67,7 @@ describe('advanced', () => {
             "use strict";
             pigpio.set_glitch_filter(2, 5);
             setTimeout((done)=>{
-                assert(parseInt(last_command.substr(0,2),16)===97, "Wrong Command Sent");
-                assert(last_command[9]==='2', "Wrong GPIO Pin Sent");
-                assert(last_command[17]==='5', "Wrong Argument Sent");
+                assert_correct_message_sent(97, 2, 5);
                 done();
             }, 100, done);
             pigpio.close();

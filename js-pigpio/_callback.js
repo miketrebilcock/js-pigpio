@@ -13,7 +13,7 @@ const TIMEOUT = 2;
 
 //notification flags
 const NTFY_FLAGS_EVENT = (1 << 7);
-const NTFY_FLAGS_ALIVE = (1 << 6);
+//const NTFY_FLAGS_ALIVE = (1 << 6);
 const NTFY_FLAGS_WDOG  = (1 << 5);
 const NTFY_FLAGS_GPIO  = 31;
 
@@ -25,6 +25,8 @@ const NTFY_FLAGS_GPIO  = 31;
  * @private
  * @class
  */
+/*
+NOT USED YET
 class  _event_ADT {
     constructor(event, func) {
         "use strict";
@@ -32,7 +34,7 @@ class  _event_ADT {
         this.func = func;
         this.bit = 1 << event;
     }
-}
+}*/
 
 /**
  * An ADT class to hold callback information.
@@ -59,10 +61,10 @@ class _callback_ADT {
 class _callback {
     /**
      *
-     * @param {Set} notify
-     * @param userGpio
-     * @param edge
-     * @param cb
+     * @param {Set} notify - Set of callbacks current registered.
+     * @param {number} userGpio - Broadcom GPIO number.
+     * @param {number} edge - Either  EITHER_EDGE, RISING_EDGE or FALLING_EDGE.
+     * @param {callback} cb - A user function taking three arguments (GPIO, level, tick).
      */
     constructor(notify, userGpio, edge, cb) {
         "use strict";
@@ -128,6 +130,9 @@ module.exports._callback = _callback;
  * @param cb
  * @private
  */
+/*
+NOT USED YET
+
 class _event {
     constructor (notify, event, cb) {
         "use strict";
@@ -145,6 +150,7 @@ class _event {
      * Cancels a event callback by removing it from the
      * notification thread.
      */
+/*
     cancel (){
         "use strict";
         this._notify.remove_event(this.callback);
@@ -155,6 +161,7 @@ class _event {
      *
      * @private
      */
+/*
     _tally () {
         "use strict";
         if (this._reset) {
@@ -171,6 +178,7 @@ class _event {
      *  The count will be zero if the user has supplied their own
      *  callback function.
      */
+/*
     tally () {
         "use strict";
         return this.count;
@@ -182,6 +190,7 @@ class _event {
         this.count = 0;
     }
 }
+*/
 
 /**
  * Encapsulates waiting for GPIO edges.
@@ -193,6 +202,8 @@ class _event {
  * @private
  * @class
  */
+/*
+NOT NEEDED YET
 class _wait_for_edge {
     constructor (notify, gpio, edge, timeout) {
         "use strict";
@@ -200,8 +211,9 @@ class _wait_for_edge {
         this.callback = _callback_ADT(gpio, edge, this.func);
         this.trigger = false;
         this._notify.append(this.callback);
-        this.start = time.time();
-        while (this.trigger === false && (time.time() - this.start) < timeout) {
+        const d = new Date();
+        this.start = d.getTime();
+        while (this.trigger === false && (d.getTime() - this.start) < timeout) {
 
         }
         this._notify.remove(this.callback);
@@ -210,7 +222,7 @@ class _wait_for_edge {
         "use strict";
         this.trigger = true;
     }
-}
+}*/
 
 /**
  * Encapsulates waiting for an event.
@@ -221,6 +233,8 @@ class _wait_for_edge {
  * @param timeout
  * @private
  */
+/*
+NOT NEEDED YET
 class _wait_for_event {
     constructor (notify, event, timeout) {
         "use strict";
@@ -228,8 +242,9 @@ class _wait_for_event {
         this.callback = new _event_ADT(event, this.func);
         this.trigger = false;
         this._notify.append(this.callback);
-        this.start = time.time();
-        while (this.trigger === false && (time.time() - this.start) < timeout) {
+        const d = new Date();
+        this.start = d.getTime();
+        while (this.trigger === false && (d.getTime() - this.start) < timeout) {
         }
         this._notify.remove(this.callback);
     }
@@ -238,9 +253,18 @@ class _wait_for_event {
         "use strict";
         this.trigger = true;
     }
-}
+}*/
 
 class _callback_thread {
+
+    /**
+     * Class to manage the notifications from remote gpio.
+     *
+     * @param {Object} control  - Socketlock for main socket.
+     * @param {string} host - Remote Server name.
+     * @param {number} port - Remote Server port.
+     * @param {callback} cb - User function to be run after callback initialised.
+     */
     constructor (control, host, port, cb) {
         "use strict";
         const that = this;
@@ -323,8 +347,7 @@ class _callback_thread {
     /**
      * Adds a callback to the notification thread.
      *
-     * @param self
-     * @param callb
+     * @param {callback} callb - Function to be run.
      */
     append(callb) {
         this.callbacks.add(callb);
@@ -334,7 +357,8 @@ class _callback_thread {
 
     /**
      * Removes a callback from the notification thread.
-     * @param callb
+     *
+     * @param {callback} callb - Function to be run.
      */
     remove(callb) {
         if (this.callbacks.has(callb)) {
@@ -353,7 +377,7 @@ class _callback_thread {
     /**
      * Adds an event callback to the notification thread.
      *
-     * @param callb
+     * @param {callback} callb - Function to be run.
      */
     append_event(callb) {
         this.events.append(callb);
@@ -364,7 +388,7 @@ class _callback_thread {
     /**
      * Removes an event callback from the notification thread.
      *
-     * @param callb
+     * @param {callback} callb - Function to be run.
      */
     remove_event(callb) {
         if (this.events.has(callb)) {
