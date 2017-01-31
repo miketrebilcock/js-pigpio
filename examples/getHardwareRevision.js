@@ -1,6 +1,6 @@
 const Pigpio = require('../js-pigpio/index.js');
 
-const HOST = '192.168.1.106';
+const HOST = 'pigpio.hopto.org';
 const PORT = 8888;
 
 const PiGPIO = new Pigpio();

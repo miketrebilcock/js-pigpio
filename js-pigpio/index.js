@@ -3,10 +3,11 @@
 const def = require('./definitions.js');
 const net = require('net');
 const assert = require('assert');
-const Put = require('put');
-const reverse_string = require('./utils.js').reverse_string;
-
-const _LOCKS = [];
+const reverse_string_and_clean = require('./utils.js').reverse_string_and_clean;
+const _pi_gpio_command = require('./utils.js')._pi_gpio_command;
+const _socklock = require('./utils.js')._socklock;
+const _callback = require ('./_callback.js')._callback;
+const _callback_thread = require ('./_callback.js')._callback_thread;
 
 /** @class */
 function pigpio() {
@@ -74,22 +75,26 @@ pigpio.prototype.pi = function(host, port, cb) {
     if (port === undefined) {
         port =  process.env.PIGPIO_PORT || '8888';
     }
-    this.client = net.connect({host, port});
+    this._notify = null;
+    this.sl = new _socklock(host, port);
+    this.sl.s = net.connect({host, port});
 
-    this.client.on('connect', () => {
+    this.sl.s.on('connect', () => {
         // Disable the Nagle algoritm
-        this.client.setNoDelay(true);
-
-        cb();
+        that.sl.s.setNoDelay(true);
+        that._notify = new _callback_thread(that.sl,host, port, (e)=>{
+            cb(e);
+        });
     });
-    this.client.on("data", (data) => {
-        that._releaseLock();
-        if (that._next !== undefined) {
-            that._next(undefined, reverse_string(data.toString('hex')));
+    this.sl.s.on("data", (data) => {
+        const command =  parseInt(data.toString('hex').substr(0,2),16);
+        if (that.sl._next[command] !== undefined) {
+            that.sl._next[command](undefined, reverse_string_and_clean(data.toString('hex')));
         }
+        that.sl._releaseLock();
     });
 
-    this.client.on('error', (e) => {
+    this.sl.s.on('error', (e) => {
         cb(e);
     });
 };
@@ -99,7 +104,7 @@ pigpio.prototype.pi = function(host, port, cb) {
  */
 pigpio.prototype.close = function() {
     "use strict";
-    this.client.end();
+    this.sl.s.end();
 };
 
 /**
@@ -131,7 +136,7 @@ pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
     assert(pulseWidth>=0 && pulseWidth <=2500, "pulsWidth must be in the range 0-2500");
-    this._pi_gpio_command(def.PI_CMD_SERVO, userGpio, pulseWidth);
+    _pi_gpio_command(this.sl,def.PI_CMD_SERVO, userGpio, pulseWidth);
 };
 
 /**
@@ -143,7 +148,7 @@ pigpio.prototype.setServoPulsewidth = function(userGpio, pulseWidth) {
 pigpio.prototype.read = function (userGpio, cb) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
-    this._pi_gpio_command(def.PI_CMD_READ, userGpio, 0, cb, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_READ, userGpio, 0, cb, true);
 };
 
 /**
@@ -152,11 +157,11 @@ pigpio.prototype.read = function (userGpio, cb) {
  * @param {number} userGpio - The number of the gpio to address. 0-31.
  * @param {number} level - The output level 0 or 1.
  */
-pigpio.prototype.write = function (userGpio, level) {
+pigpio.prototype.write = function (userGpio, level, cb) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
     assert(level===0 || level ===1, "level must be 0 or 1.");
-    this._pi_gpio_command(def.PI_CMD_WRITE, userGpio, level, undefined, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_WRITE, userGpio, level, cb, false);
 };
 
 /**
@@ -178,7 +183,7 @@ pigpio.prototype.set_PWM_dutycycle = function(userGpio, dutycycle) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
     assert(dutycycle>=0 && dutycycle <=255, "dutycycle must be in the range 0-255");
-    this._pi_gpio_command(def.PI_CMD_PWM, userGpio, dutycycle, undefined, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_PWM, userGpio, dutycycle, undefined, true);
 };
 
 /**
@@ -197,7 +202,7 @@ pigpio.prototype.set_PWM_dutycycle = function(userGpio, dutycycle) {
 pigpio.prototype.get_PWM_dutycycle = function(userGpio, cb) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
-    this._pi_gpio_command(def.PI_CMD_GDC, userGpio, 0, cb, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_GDC, userGpio, 0, cb, true);
 };
 
 /**
@@ -215,7 +220,7 @@ pigpio.prototype.set_PWM_range = function (userGpio, range) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
     assert(range>=25 && range <=40000, "range must be in the range 25-40000.");
-    this._pi_gpio_command(def.PI_CMD_PRS, userGpio, range, undefined, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_PRS, userGpio, range, undefined, true);
 };
 
 /**
@@ -228,7 +233,7 @@ pigpio.prototype.set_PWM_range = function (userGpio, range) {
 pigpio.prototype.get_PWM_range = function(userGpio, cb) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
-    this._pi_gpio_command(def.PI_CMD_PRG, userGpio, 0, cb, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_PRG, userGpio, 0, cb, true);
 };
 
 /**
@@ -244,9 +249,8 @@ pigpio.prototype.get_PWM_range = function(userGpio, cb) {
 pigpio.prototype.get_PWM_real_range = function(userGpio, cb) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
-    this._pi_gpio_command(def.PI_CMD_PRRG, userGpio, 0, cb, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_PRRG, userGpio, 0, cb, true);
 };
-
 
 /**
  * Sets the frequency (in Hz) of the PWM to be used on the GPIO.
@@ -282,7 +286,7 @@ pigpio.prototype.set_PWM_frequency = function (userGpio, frequency) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
     assert(frequency>=0, "frequency must be greater than or equal to 0");
-    this._pi_gpio_command(def.PI_CMD_PFS, userGpio, frequency);
+    _pi_gpio_command(this.sl,def.PI_CMD_PFS, userGpio, frequency);
 };
 
 /**
@@ -294,12 +298,33 @@ pigpio.prototype.set_PWM_frequency = function (userGpio, frequency) {
 pigpio.prototype.get_PWM_frequency = function(userGpio, cb) {
     "use strict";
     assert_gpio_pin_in_range(userGpio,0,31);
-    this._pi_gpio_command(def.PI_CMD_PFG, userGpio, 0, cb, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_PFG, userGpio, 0, cb, true);
 };
 
-/*
-
+/**
+ * Calls a user supplied function (a callback) whenever the specified GPIO edge is detected.
+ *
+ * The user supplied callback receives three parameters, the GPIO, the level, and the tick.
+ *
+ * If a user callback is not specified a default tally callback is
+ * provided which simply counts edges.  The count may be retrieved
+ * by calling the tally function.  The count may be reset to zero
+ * by calling the reset_tally function.
+ *
+ * The callback may be cancelled by calling the cancel function.
+ *
+ * A GPIO may have multiple callbacks (although I can't think of
+ * a reason to do so).
+ *
+ * @param {number} userGpio - The number of the gpio to address (0-31).
+ * @param {number} edge - Indicate the edge to detect.
+ * @param {callback} cb - Callback to be run.
  */
+pigpio.prototype.callback = function (userGpio, edge, cb) {
+    "use strict";
+    assert_gpio_pin_in_range(userGpio,0,31);
+    return new _callback (this._notify, userGpio, edge, cb);
+};
 
 /**
  *
@@ -317,7 +342,7 @@ pigpio.prototype.get_PWM_frequency = function(userGpio, cb) {
  */
 pigpio.prototype.getHardwareRevision = function(cb) {
     "use strict";
-    this._pi_gpio_command(def.PI_CMD_HWVER, 0, 0, cb, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_HWVER, 0, 0, cb, true);
 };
 
 /**
@@ -330,8 +355,9 @@ pigpio.prototype.set_mode = function (gpio, mode) {
     "use strict";
     assert_gpio_pin_in_range(gpio,0,53);
     assert([this.INPUT, this.OUTPUT, this.ALT0, this.ALT1, this.ALT2, this.ALT3, this.ALT4, this.ALT5].includes(mode), "Mode must be INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4, ALT5");
-    this._pi_gpio_command(def.PI_CMD_MODES, gpio, mode);
-
+    console.log("Sending GPIO Command");
+    _pi_gpio_command(this.sl,def.PI_CMD_MODES, gpio, mode);
+    console.log("GPIO Command Sent");
 };
 
 /**
@@ -343,7 +369,7 @@ pigpio.prototype.set_mode = function (gpio, mode) {
 pigpio.prototype.get_mode = function (gpio, callback) {
     "use strict";
     assert_gpio_pin_in_range(gpio,0,53);
-    this._pi_gpio_command(def.PI_CMD_MODEG, gpio, 0, callback, true);
+    _pi_gpio_command(this.sl,def.PI_CMD_MODEG, gpio, 0, callback, true);
 }
 
 /**
@@ -356,7 +382,7 @@ pigpio.prototype.set_pull_up_down = function (gpio, pud) {
     "use strict";
     assert_gpio_pin_in_range(gpio,0,53);
     assert([this.PUD_DOWN, this.PUD_OFF, this.PUD_UP].includes(pud), "pud must be PUD_UP, PUD_DOWN, PUD_OFF");
-    this._pi_gpio_command(def.PI_CMD_PUD, gpio, pud);
+    _pi_gpio_command(this.sl,def.PI_CMD_PUD, gpio, pud);
 
 };
 
@@ -375,53 +401,37 @@ pigpio.prototype.set_glitch_filter = function (gpio, steady) {
     "use strict";
     assert_gpio_pin_in_range(gpio,0,31);
     assert(steady>=0 && steady<=300000, "steady must be in the range 0 - 30000");
-    this._pi_gpio_command(def.PI_CMD_FG, gpio, steady);
+    _pi_gpio_command(this.sl,def.PI_CMD_FG, gpio, steady);
 };
 
-pigpio.prototype._pi_gpio_command = function(command, parameter1, parameter2, next, wait_for_response) {
+/**
+ * Calls a user supplied function (a callback) whenever the
+ * specified GPIO edge is detected.
+ *
+ * If a user callback is not specified a default tally callback is
+ * provided which simply counts edges.  The count may be retrieved
+ * by calling the tally function.  The count may be reset to zero
+ * by calling the reset_tally function.
+ *
+ *  The callback may be cancelled by calling the cancel function.
+ *
+ *  A GPIO may have multiple callbacks (although I can't think of
+ *  a reason to do so).
+ *
+ * @param {number} userGpio - Port 0-31.
+ * @param {number} edge - Must be EITHER_EDGE, RISING_EDGE (default), or FALLING_EDGE.
+ * @param {callback} func - User supplied callback function.
+ * The user supplied callback receives three parameters, the GPIO, the level, and the tick.
+ */
+pigpio.prototype.callback = function (userGpio, edge, func) {
     "use strict";
-    const cmd = Put()
-        .word32le(command)
-        .word32le(parameter1)
-        .word32le(parameter2)
-        .word32le(0);
-    this._acquireLock();
-    if(!this.client.write(cmd.buffer())) {
-        next(new Error("Error Sending Command to Pi: "+command));
+    assert_gpio_pin_in_range(userGpio,0,31);
+    if (edge === undefined || edge === null) {
+        edge = this.RISING_EDGE;
     }
-    if(wait_for_response) {
-        this._next = next;
-    } else {
-        this._releaseLock();
-        if( next !== undefined) {
-            next();
-        }
-    }
-};
-/* eslint: no-unmodified-loop-condition */
-pigpio.prototype._acquireLock = function () {
-    "use strict";
-    let timeout = false;
-    setTimeout(()=>{
-        timeout = true
-    }, 500);
-    /* eslint-disable no-unmodified-loop-condition */
-    while (!timeout && _LOCKS[this.host+':'+this.port] !== undefined) {
-        if (_LOCKS[this.host + ':' + this.port] === undefined) {
-            _LOCKS[this.host + ':' + this.port] = 'Locked';
-        } else {
-            throw new Error('Can not acquire Lock');
-        }
-    }
-    /* eslint-disable no-unmodified-loop-condition */
-};
-
-pigpio.prototype._releaseLock = function () {
-    "use strict";
-    if (_LOCKS[this.host+':'+this.port] !== undefined) {
-        _LOCKS[this.host+':'+this.port] = undefined;
-    }
-};
+    assert (edge === this.EITHER_EDGE || edge === this.RISING_EDGE || edge === this.FALLING_EDGE);
+    return new _callback(this._notify, userGpio, edge, func)
+}
 
 function assert_gpio_pin_in_range (gpio, low , high) {
     "use strict";

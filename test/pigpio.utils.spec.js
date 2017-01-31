@@ -11,15 +11,22 @@ describe('js-pigpio', () => {
     let last_command = '';
     let server_response = '';
     const port = 5004;
+    let event_port = 0;
 
     //setup server and listen for commands
     net.createServer((socket)=>{
         socket.on("data", (data) => {
-            last_command = data.toString('hex');
-            if (server_response!=="") {
-                var replyData = server_response;
-                socket.write(replyData);
-                server_response="";
+            if(parseInt((data.toString('hex')).substr(0,2),16)===99) {
+                event_port = socket.remotePort;
+            }
+
+            if(socket.remotePort !== event_port) {
+                last_command = data.toString('hex');
+                if (server_response !== "") {
+                    var replyData = server_response;
+                    socket.write(replyData);
+                    server_response = "";
+                }
             }
         });
 

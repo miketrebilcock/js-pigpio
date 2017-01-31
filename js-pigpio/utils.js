@@ -1,13 +1,86 @@
+const Put = require('put');
+const assert = require('assert');
 
+exports.reverse_string_and_clean = function (str) {
+    var result='';
+    var i = str.length-1;
+    while (i>str.length-9) {
+        result +=str [i-1] +  str[i] ;
+        i -=2;
+    }
+    return parseInt(result,'16');
+};
 
 exports.reverse_string = function (str) {
     var result='';
     var i = str.length-1;
-    while (i>str.length-9) {
-        if (str.substr(i-1, 2)!=='00') {
+    while (i>0) {
             result +=str [i-1] +  str[i] ;
-        }
         i -=2;
     }
     return parseInt(result,'16');
+};
+
+const _LOCKS = [];
+
+/**
+ * A class to store socket and lock.
+ * @private
+ */
+class _socklock {
+    constructor(host, port) {
+        this.s = null;
+        this.host = host;
+        this.port = port;
+        this._next = [];
+    }
+
+    /* eslint: no-unmodified-loop-condition */
+    _acquireLock() {
+        "use strict";
+        let timeout = false;
+        setTimeout(() => {
+            timeout = true
+        }, 500);
+        /* eslint-disable no-unmodified-loop-condition */
+        while (!timeout && _LOCKS[this.host + ':' + this.port] !== undefined) {
+            if (_LOCKS[this.host + ':' + this.port] === undefined) {
+                _LOCKS[this.host + ':' + this.port] = 'Locked';
+            } else {
+                throw new Error('Can not acquire Lock');
+            }
+        }
+        /* eslint-disable no-unmodified-loop-condition */
+    }
+
+    _releaseLock() {
+        "use strict";
+        if (_LOCKS[this.host + ':' + this.port] !== undefined) {
+            _LOCKS[this.host + ':' + this.port] = undefined;
+        }
+    }
+}
+
+exports._socklock = _socklock;
+
+exports._pi_gpio_command = function(socketlock, command, parameter1, parameter2, next, wait_for_response) {
+    "use strict";
+    assert(command !== undefined, "No command specified");
+    const cmd = Put()
+        .word32le(command)
+        .word32le(parameter1)
+        .word32le(parameter2)
+        .word32le(0);
+    socketlock._acquireLock();
+    if(!socketlock.s.write(cmd.buffer())) {
+        next(new Error("Error Sending Command to Pi: "+command));
+    }
+    if(wait_for_response) {
+        socketlock._next[command] = next;
+    } else {
+        socketlock._releaseLock();
+        if( next !== undefined) {
+            next();
+        }
+    }
 };

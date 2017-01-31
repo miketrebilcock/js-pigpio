@@ -1,7 +1,7 @@
 /*global it describe context */
 
 const assert = require('chai').assert;
-const reverse_string = require('../js-pigpio/utils.js').reverse_string;
+const reverse_string = require('../js-pigpio/utils.js').reverse_string_and_clean;
 
 describe('js-pigpio-utils', () => {
 

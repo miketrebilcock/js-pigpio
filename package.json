@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "es6-set": "^0.1.4",
     "node-constants": "0.0.2",
     "put": "0.0.6"
   },

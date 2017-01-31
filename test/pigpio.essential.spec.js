@@ -9,14 +9,21 @@ describe('essential', () => {
 
     let server_response = '';
     const port = 5002;
+    let event_port = 0;
 
     //setup server and listen for commands
     net.createServer((socket)=>{
-        socket.on("data", () => {
-            if (server_response!=="") {
-                var replyData = server_response;
-                socket.write(replyData);
-                server_response="";
+        socket.on("data", (data) => {
+            if(parseInt((data.toString('hex')).substr(0,2),16)===99) {
+                event_port = socket.remotePort;
+            }
+
+            if(socket.remotePort !== event_port) {
+                if (server_response !== "") {
+                    var replyData = server_response;
+                    socket.write(replyData);
+                    server_response = "";
+                }
             }
         });
 

@@ -12,15 +12,22 @@ describe('beginner', () => {
     let last_command = "";
     let server_response = "";
     const port = 5000;
+    let event_port = 0;
 
-    //setup server and listen for commands
     net.createServer((socket)=>{
         socket.on("data", (data) => {
-            last_command = data.toString('hex');
-            if (server_response!=="") {
-                var replyData = server_response;
-                socket.write(replyData);
-                server_response="";
+            if(parseInt((data.toString('hex')).substr(0,2),16)===99) {
+                event_port = socket.remotePort;
+                socket.write(data);
+            }
+
+            if(socket.remotePort !== event_port) {
+                last_command = data.toString('hex');
+                if (server_response !== "") {
+                    var replyData = server_response;
+                    socket.write(replyData);
+                    server_response = "";
+                }
             }
         });
 
@@ -33,13 +40,16 @@ describe('beginner', () => {
     context('mode', () => {
         it('set_mode as INPUT', (done) => {
             const pigpio = new PiGPIO();
+            console.log("pigpio created");
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
+                console.log("pi created");
                 pigpio.set_mode(1, pigpio.INPUT);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='0', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='0', "Wrong Command Send");
+                console.log("mode set");
+                setTimeout((done) => {
+                    assert(last_command[1] === '0', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '0', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -51,10 +61,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.OUTPUT);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='0', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='1', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '0', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '1', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -66,10 +76,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT0);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='0', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='4', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '0', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '4', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -81,10 +91,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT1);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='0', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='5', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '0', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '5', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -96,10 +106,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT2);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='0', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='6', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '0', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '6', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -111,10 +121,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT3);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='0', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='7', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '0', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '7', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -126,10 +136,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT4);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='0', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='3', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '0', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '3', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -141,10 +151,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT5);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='0', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='2', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '0', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '2', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -177,10 +187,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_mode(1, pigpio.ALT3);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='0', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='7', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '0', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '7', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -195,10 +205,10 @@ describe('beginner', () => {
                 const cmd = Put()
                     .word32le(0x0100);
                 server_response = cmd.buffer();
-                pigpio.get_mode(2,(err, data)=>{
-                    assert (err === undefined, "Error occured");
-                    assert(pigpio.OUTPUT===data,"Invalid Server response");
-                    assert(last_command.substr(0,2)==='01', "Wrong Command Send");
+                pigpio.get_mode(2, (err, data) => {
+                    assert(err === undefined, "Error occured");
+                    assert(pigpio.OUTPUT === data, "Invalid Server response");
+                    assert(last_command.substr(0, 2) === '01', "Wrong Command Send");
                     pigpio.close();
                     done();
                 });
@@ -211,10 +221,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_pull_up_down(1, pigpio.PUD_OFF);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='2', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong GPIO Port Send");
-                    assert(last_command[17]==='0', "Wrong Argument Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '2', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong GPIO Port Send");
+                    assert(last_command[17] === '0', "Wrong Argument Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -226,10 +236,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_pull_up_down(1, pigpio.PUD_UP);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='2', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='2', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '2', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '2', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -241,10 +251,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 pigpio.set_pull_up_down(1, pigpio.PUD_DOWN);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='2', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='1', "Wrong Command Send");
+                setTimeout((done) => {
+                    assert(last_command[1] === '2', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '1', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -282,10 +292,10 @@ describe('beginner', () => {
                 const cmd = Put()
                     .word32le(0x0100);
                 server_response = cmd.buffer();
-                pigpio.read(2,(err, data)=>{
-                    assert (err === undefined, "Error occured");
-                    assert(1===data,"Invalid Server response");
-                    assert(last_command.substr(0,2)==='03', "Wrong Command Send");
+                pigpio.read(2, (err, data) => {
+                    assert(err === undefined, "Error occured");
+                    assert(1 === data, "Invalid Server response");
+                    assert(last_command.substr(0, 2) === '03', "Wrong Command Send");
                     pigpio.close();
                     done();
                 });
@@ -314,11 +324,11 @@ describe('beginner', () => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
-                pigpio.write(1,1);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='4', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong parameter Send");
-                    assert(last_command[17]==='1', "Wrong Value send");
+                pigpio.write(1, 1);
+                setTimeout((done) => {
+                    assert(last_command[1] === '4', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong parameter Send");
+                    assert(last_command[17] === '1', "Wrong Value send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -328,11 +338,11 @@ describe('beginner', () => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
-                pigpio.write(1,0);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='4', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong parameter Send");
-                    assert(last_command[17]==='0', "Wrong Value send");
+                pigpio.write(1, 0);
+                setTimeout((done) => {
+                    assert(last_command[1] === '4', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong parameter Send");
+                    assert(last_command[17] === '0', "Wrong Value send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -343,10 +353,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
-                    pigpio.write(-1,1);
+                    pigpio.write(-1, 1);
                 }).to.throw(Error);
                 expect(() => {
-                    pigpio.write(35,0);
+                    pigpio.write(35, 0);
                 }).to.throw(Error);
                 expect(() => {
                     pigpio.write();
@@ -359,10 +369,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
-                    pigpio.write(1,-1);
+                    pigpio.write(1, -1);
                 }).to.throw(Error);
                 expect(() => {
-                    pigpio.write(2,2);
+                    pigpio.write(2, 2);
                 }).to.throw(Error);
                 expect(() => {
                     pigpio.write(3);
@@ -372,16 +382,16 @@ describe('beginner', () => {
         });
     });
 
-    context ('ServoPulsewith', () => {
+    context('ServoPulsewith', () => {
         it('setServoPulsewidth', (done) => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
-                pigpio.setServoPulsewidth(1,4);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='8', "Wrong Command Send");
-                    assert(last_command[9]==='1', "Wrong Command Send");
-                    assert(last_command[17]==='4', "Wrong Command Send");
+                pigpio.setServoPulsewidth(1, 4);
+                setTimeout((done) => {
+                    assert(last_command[1] === '8', "Wrong Command Send");
+                    assert(last_command[9] === '1', "Wrong Command Send");
+                    assert(last_command[17] === '4', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -411,10 +421,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
-                    pigpio.setServoPulsewidth(1,-1);
+                    pigpio.setServoPulsewidth(1, -1);
                 }).to.throw(Error);
                 expect(() => {
-                    pigpio.setServoPulsewidth(1,256);
+                    pigpio.setServoPulsewidth(1, 256);
                 }).to.throw(Error);
                 expect(() => {
                     pigpio.setServoPulsewidth(1);
@@ -424,16 +434,16 @@ describe('beginner', () => {
         });
     });
 
-    context('PWM_dutycycle', ()=>{
+    context('PWM_dutycycle', () => {
         it('set_PWM_dutycycle', (done) => {
             const pigpio = new PiGPIO();
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
-                pigpio.set_PWM_dutycycle(2,8);
-                setTimeout((done)=>{
-                    assert(last_command[1]==='5', "Wrong Command Send");
-                    assert(last_command[9]==='2', "Wrong Command Send");
-                    assert(last_command[17]==='8', "Wrong Command Send");
+                pigpio.set_PWM_dutycycle(2, 8);
+                setTimeout((done) => {
+                    assert(last_command[1] === '5', "Wrong Command Send");
+                    assert(last_command[9] === '2', "Wrong Command Send");
+                    assert(last_command[17] === '8', "Wrong Command Send");
                     done();
                 }, 100, done);
                 pigpio.close();
@@ -462,10 +472,10 @@ describe('beginner', () => {
             pigpio.pi('127.0.0.1', port, () => {
                 "use strict";
                 expect(() => {
-                    pigpio.set_PWM_dutycycle(3,-1);
+                    pigpio.set_PWM_dutycycle(3, -1);
                 }).to.throw(Error);
                 expect(() => {
-                    pigpio.set_PWM_dutycycle(4,256);
+                    pigpio.set_PWM_dutycycle(4, 256);
                 }).to.throw(Error);
                 expect(() => {
                     pigpio.set_PWM_dutycycle();
@@ -481,10 +491,10 @@ describe('beginner', () => {
                 const cmd = Put()
                     .word32le(0x80000000);
                 server_response = cmd.buffer();
-                pigpio.get_PWM_dutycycle(2,(err, data)=>{
-                    assert (err === undefined, "Error occured");
-                    assert(128===data,"Invalid Server response");
-                    assert(parseInt(last_command.substr(0,2),16)===83, "Wrong Command Send");
+                pigpio.get_PWM_dutycycle(2, (err, data) => {
+                    assert(err === undefined, "Error occured");
+                    assert(128 === data, "Invalid Server response");
+                    assert(parseInt(last_command.substr(0, 2), 16) === 83, "Wrong Command Send");
                     pigpio.close();
                     done();
                 });
@@ -505,6 +515,35 @@ describe('beginner', () => {
                     pigpio.get_PWM_dutycycle();
                 }).to.throw(Error);
                 pigpio.close();
+            });
+        });
+    });
+
+    context('callback', () => {
+        it('errors when out of range gpiopin sent', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', port, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.callback(-1);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.callback(2600);
+                }).to.throw(Error);
+                expect(() => {
+                    pigpio.callback();
+                }).to.throw(Error);
+
+            });
+        });
+
+        it('errors when invalid edge value sent', () => {
+            const pigpio = new PiGPIO();
+            pigpio.pi('127.0.0.1', port, () => {
+                "use strict";
+                expect(() => {
+                    pigpio.callback(1, 4);
+                }).to.throw(Error);
             });
         });
     });
