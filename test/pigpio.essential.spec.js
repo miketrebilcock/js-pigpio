@@ -3,35 +3,16 @@
 
 const assert = require('chai').assert;
 const PiGPIO = require('../js-pigpio/index.js');
-const net = require('net');
+const testServer = require ('./testhelper.js').testServer;
+let server;
 
 describe('essential', () => {
 
-    let server_response = '';
     const port = 5002;
-    let event_port = 0;
 
-    //setup server and listen for commands
-    net.createServer((socket)=>{
-        socket.on("data", (data) => {
-            if(parseInt((data.toString('hex')).substr(0,2),16)===99) {
-                event_port = socket.remotePort;
-            }
-
-            if(socket.remotePort !== event_port) {
-                if (server_response !== "") {
-                    var replyData = server_response;
-                    socket.write(replyData);
-                    server_response = "";
-                }
-            }
-        });
-
-        socket.on("error", (ex)=>{
-            throw new Error(ex);
-        });
-    }).
-    listen(port);
+    before(()=> {
+        server = new testServer(port);
+    });
 
     it('connects using specificed port', () => {
         const pigpio = new PiGPIO();
@@ -40,7 +21,7 @@ describe('essential', () => {
             assert(err===undefined, "Error Creating local connection");
             assert(data===undefined, "Error Creating local connection");
             assert(pigpio.address==='127.0.0.1', "Error Creating local connection");
-            assert(pigpio.port===5000, "Error Creating local connection");
+            assert(pigpio.port===port, "Error Creating local connection");
             pigpio.close();
         });
     });
@@ -54,5 +35,9 @@ describe('essential', () => {
             pigpio.close();
             done();
         });
+    });
+
+    after(()=>{
+        server.destroy();
     });
 });

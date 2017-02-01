@@ -1,4 +1,43 @@
-/* eslint-env node */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>_callback.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_callback.html">_callback</a><ul class='methods'><li data-type='method'><a href="-_callback.html#cancel">cancel</a></li><li data-type='method'><a href="-_callback.html#tally">tally</a></li></ul></li><li><a href="pigpio.html">pigpio</a><ul class='methods'><li data-type='method'><a href="pigpio.html#callback">callback</a></li><li data-type='method'><a href="pigpio.html#callback">callback</a></li><li data-type='method'><a href="pigpio.html#close">close</a></li><li data-type='method'><a href="pigpio.html#get_mode">get_mode</a></li><li data-type='method'><a href="pigpio.html#get_PWM_dutycycle">get_PWM_dutycycle</a></li><li data-type='method'><a href="pigpio.html#get_PWM_frequency">get_PWM_frequency</a></li><li data-type='method'><a href="pigpio.html#get_PWM_range">get_PWM_range</a></li><li data-type='method'><a href="pigpio.html#get_PWM_real_range">get_PWM_real_range</a></li><li data-type='method'><a href="pigpio.html#getHardwareRevision">getHardwareRevision</a></li><li data-type='method'><a href="pigpio.html#pi">pi</a></li><li data-type='method'><a href="pigpio.html#read">read</a></li><li data-type='method'><a href="pigpio.html#set_glitch_filter">set_glitch_filter</a></li><li data-type='method'><a href="pigpio.html#set_mode">set_mode</a></li><li data-type='method'><a href="pigpio.html#set_pull_up_down">set_pull_up_down</a></li><li data-type='method'><a href="pigpio.html#set_PWM_dutycycle">set_PWM_dutycycle</a></li><li data-type='method'><a href="pigpio.html#set_PWM_frequency">set_PWM_frequency</a></li><li data-type='method'><a href="pigpio.html#set_PWM_range">set_PWM_range</a></li><li data-type='method'><a href="pigpio.html#setServoPulsewidth">setServoPulsewidth</a></li><li data-type='method'><a href="pigpio.html#write">write</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#define">define</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">_callback.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* eslint-env node */
 const net = require('net');
 const _pi_gpio_command = require('./utils.js')._pi_gpio_command;
 const _socklock = require('./utils.js')._socklock;
@@ -12,9 +51,9 @@ const Set = require('es6-set');
 const TIMEOUT = 2;
 
 //notification flags
-const NTFY_FLAGS_EVENT = (1 << 7);
-//const NTFY_FLAGS_ALIVE = (1 << 6);
-const NTFY_FLAGS_WDOG  = (1 << 5);
+const NTFY_FLAGS_EVENT = (1 &lt;&lt; 7);
+//const NTFY_FLAGS_ALIVE = (1 &lt;&lt; 6);
+const NTFY_FLAGS_WDOG  = (1 &lt;&lt; 5);
 const NTFY_FLAGS_GPIO  = 31;
 
 /**
@@ -32,7 +71,7 @@ class  _event_ADT {
         "use strict";
         this.event = event;
         this.func = func;
-        this.bit = 1 << event;
+        this.bit = 1 &lt;&lt; event;
     }
 }*/
 
@@ -51,7 +90,7 @@ class _callback_ADT {
         this.gpio = gpio;
         this.edge = edge;
         this.func = func;
-        this.bit = 1 << gpio;
+        this.bit = 1 &lt;&lt; gpio;
     }
 }
 
@@ -213,7 +252,7 @@ class _wait_for_edge {
         this._notify.append(this.callback);
         const d = new Date();
         this.start = d.getTime();
-        while (this.trigger === false && (d.getTime() - this.start) < timeout) {
+        while (this.trigger === false &amp;&amp; (d.getTime() - this.start) &lt; timeout) {
 
         }
         this._notify.remove(this.callback);
@@ -244,7 +283,7 @@ class _wait_for_event {
         this._notify.append(this.callback);
         const d = new Date();
         this.start = d.getTime();
-        while (this.trigger === false && (d.getTime() - this.start) < timeout) {
+        while (this.trigger === false &amp;&amp; (d.getTime() - this.start) &lt; timeout) {
         }
         this._notify.remove(this.callback);
     }
@@ -286,7 +325,7 @@ class _callback_thread {
             const command =  parseInt(data.toString('hex').substr(0,2),16);
 
             if (that.sl._next[command] !== undefined) {
-                if(command === 99 && that.sl._next[command] !== undefined) {
+                if(command === 99 &amp;&amp; that.sl._next[command] !== undefined) {
                     that.sl._next[command](undefined, data);
                     that.sl._next[command] = undefined;
                 }
@@ -300,9 +339,9 @@ class _callback_thread {
                     const changed = level ^ that.lastLevel;
                     that.lastLevel = level;
                     that.callbacks.forEach( (cb)=> {
-                        if (cb.bit & changed) {
+                        if (cb.bit &amp; changed) {
                             let newLevel = 0;
-                            if (cb.bit & level) {
+                            if (cb.bit &amp; level) {
                                 newLevel = 1;
                             }
                             if (cb.edge ^ newLevel) {
@@ -310,15 +349,15 @@ class _callback_thread {
                             }
                         }
                     });
-                } else if (flags & NTFY_FLAGS_WDOG) {
-                    const gpio = flags & NTFY_FLAGS_GPIO;
+                } else if (flags &amp; NTFY_FLAGS_WDOG) {
+                    const gpio = flags &amp; NTFY_FLAGS_GPIO;
                     that.callbacks.forEach((cb) => {
                         if (cb.gpio === gpio) {
                             cb.func(gpio, TIMEOUT, tick);
                         }
                     });
-                } else if (flags & NTFY_FLAGS_EVENT) {
-                    const event = flags & NTFY_FLAGS_GPIO;
+                } else if (flags &amp; NTFY_FLAGS_EVENT) {
+                    const event = flags &amp; NTFY_FLAGS_GPIO;
                     that.events.forEach((cb) => {
                         if (cb.event === event) {
                             cb.func(event, tick)
@@ -415,3 +454,22 @@ class _callback_thread {
 }
 
 module.exports._callback_thread = _callback_thread;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Feb 01 2017 21:22:15 GMT+0000 (GMT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

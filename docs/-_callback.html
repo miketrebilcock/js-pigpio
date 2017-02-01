@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Global - Documentation</title>
+    <title>_callback - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Global</h1>
+    <h1 class="page-title">_callback</h1>
     
 
     
@@ -40,8 +40,10 @@
 <header>
     
         <h2>
-        
+        _callback
         </h2>
+        
+            <div class="class-description">A class to provide GPIO level change callbacks.</div>
         
     
 </header>
@@ -51,8 +53,24 @@
     
         
 
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="_callback"><span class="type-signature"></span>new _callback<span class="signature">(notify, userGpio, edge, cb)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
 <dl class="details">
 
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="-_callback.js.html">_callback.js</a>, <a href="-_callback.js.html#line61">line 61</a>
+    </li></ul></dd>
     
 
     
@@ -89,9 +107,149 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
         
 
         
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>notify</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Set</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Set of callbacks current registered.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>userGpio</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Broadcom GPIO number.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>edge</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Either  EITHER_EDGE, RISING_EDGE or FALLING_EDGE.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cb</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">callback</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A user function taking three arguments (GPIO, level, tick).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     </div>
 
@@ -106,12 +264,18 @@
     
 
     
-        <h3 class="subsection-title">Members</h3>
+
+    
+        <h3 class="subsection-title">Methods</h3>
 
         
             
-<h4 class="name" id="define"><span class="type-signature">(constant) </span>define<span class="type-signature"></span></h4>
 
+    
+
+    <h4 class="name" id="cancel"><span class="type-signature"></span>cancel<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
 
 
 
@@ -121,7 +285,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="definitions.js.html">definitions.js</a>, <a href="definitions.js.html#line4">line 4</a>
+        <a href="-_callback.js.html">_callback.js</a>, <a href="-_callback.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -161,7 +325,7 @@
 
 
 <div class="description">
-    Translated from https://github.com/joan2937/pigpio/blob/master/pigpio.h
+    Cancels a callback by removing it from the notification thread.
 </div>
 
 
@@ -171,9 +335,111 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
+            
+
     
 
+    <h4 class="name" id="tally"><span class="type-signature"></span>tally<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="-_callback.js.html">_callback.js</a>, <a href="-_callback.js.html#line111">line 111</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    Provides a count of how many times the default tally
+ callback has triggered.
+ The count will be zero if the user has supplied their own
+ callback function.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
     
 
     
