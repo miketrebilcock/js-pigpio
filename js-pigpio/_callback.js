@@ -84,7 +84,7 @@ class _callback {
      */
     cancel () {
         "use strict";
-        this._notfy.remove(this._callback);
+        this._notify.remove(this._callback);
     }
 
     /**
