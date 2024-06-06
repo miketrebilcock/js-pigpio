@@ -1,4 +1,3 @@
-const Put = require('put');
 const assert = require('assert');
 
 exports.reverse_string_and_clean = function (str) {
@@ -66,11 +65,12 @@ exports._socklock = _socklock;
 exports._pi_gpio_command = function(socketlock, command, parameter1, parameter2, next, wait_for_response) {
     "use strict";
     assert(command !== undefined, "No command specified");
-    const cmd = Put()
-        .word32le(command)
-        .word32le(parameter1)
-        .word32le(parameter2)
-        .word32le(0);
+    // console.log("Receviced _pi_gpio_command "+command+" | "+parameter1+" | "+parameter2)
+    const cmd = Buffer.alloc(16); // Crée un tampon de 16 octets
+    cmd.writeUInt32LE(command, 0);
+    cmd.writeUInt32LE(parameter1, 4);
+    cmd.writeUInt32LE(parameter2, 8);
+    cmd.writeUInt32LE(0, 12);
 
     socketlock._acquireLock();
 
@@ -78,7 +78,7 @@ exports._pi_gpio_command = function(socketlock, command, parameter1, parameter2,
         socketlock._next[command] = next;
     }
 
-    if(!socketlock.s.write(cmd.buffer())) {
+    if(!socketlock.s.write(cmd)) {
         next(new Error("Error Sending Command to Pi: "+command));
     }
 

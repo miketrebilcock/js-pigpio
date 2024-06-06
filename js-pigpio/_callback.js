@@ -3,10 +3,8 @@ const net = require('net');
 const _pi_gpio_command = require('./utils.js')._pi_gpio_command;
 const _socklock = require('./utils.js')._socklock;
 const def = require('./definitions.js');
-const Put = require('put');
 const reverse_string = require('./utils.js').reverse_string;
 const reverse_string_and_clean = require('./utils.js').reverse_string_and_clean;
-const Set = require('es6-set');
 
 
 const TIMEOUT = 2;
@@ -334,12 +332,12 @@ class _callback_thread {
         this.run();
     }
     stop () {
-        const cmd = Put()
-            .word32le(def.PI_CMD_NC)
-            .word32le(this.handle)
-            .word32le(0)
-            .word32le(0);
-        this.sl.s.write(cmd.buffer());
+        const cmd = Buffer.alloc(16); // Crée un tampon de 16 octets
+        cmd.writeUInt32LE(def.PI_CMD_NC, 0);
+        cmd.writeUInt32LE(this.handle, 4);
+        cmd.writeUInt32LE(0, 8);
+        cmd.writeUInt32LE(0, 12);
+        this.sl.s.write(cmd);
         this.sl.s.close();
     }
 

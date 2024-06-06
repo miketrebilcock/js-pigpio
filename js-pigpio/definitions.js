@@ -1,9 +1,8 @@
 /**
  * Translated from https://github.com/joan2937/pigpio/blob/master/pigpio.h
  */
-const define = require("node-constants")(exports);
 
-define({
+module.exports = Object.freeze({
     PI_CMD_MODES : 0,
     PI_CMD_MODEG : 1,
     PI_CMD_PUD   : 2,
